@@ -5,7 +5,7 @@ import sys
 class MySQLService:
 
     def __init__(self, session):
-        self.i = 3
+        self.i = 7
         self.db = MySQLdb.connect(host="localhost",  # your host, usually localhost
                              user="root",  # your username
                              passwd="",  # your password
@@ -21,12 +21,46 @@ class MySQLService:
             print row[2]
         pass
 
-    def createShapeInfo(self):
-        self.cur.execute("""INSERT INTO shape_info (id_face, zero,alpha,beta,sizeX,sizeY) VALUES (%s,%s,%s,%s,%s,%s)""",
-                    (self.i, 0, 9.2, 5.222, 5.6, 6.5))
+    def createShapeInfo(self, zero, alpha, beta, sizeX, sizeY):
+        self.cur.execute("INSERT INTO shape_info (id_face, zero,alpha,beta,sizeX,sizeY) VALUES (%(id)s, %(zero)s, %(alpha)s, %(beta)s, %(sizeX)s, %(sizeY)s)"
+                         % { 'id': self.i, 'zero': zero, 'alpha': alpha, 'beta': beta, 'sizeX': sizeX, 'sizeY': sizeY})
         self.db.commit()
-        print "ca marche"
         self.i = self.i + 1
+        print "Shape Info created"
+        pass
+
+    def createUser(self, nom):
+        self.cur.execute("INSERT INTO user (name) VALUES ('"+nom+"')")
+        self.db.commit()
+        print "User added"
+        pass
+
+    def createResponse(self, answer, id_user, id_question):
+        self.cur.execute("INSERT INTO reponse (content, user_id, question_id) VALUES ('"+answer+"', %(user_id)s, %(question_id)s)" %
+                         { 'user_id': id_user, 'question_id': id_question})
+        self.db.commit()
+        print "Response added"
+        pass
+
+    def createQuestion(self, label, content):
+        self.cur.execute("INSERT INTO question (label, content) VALUES ('"+label+"', '"+content+"')")
+        self.db.commit()
+        print "Question added"
+        pass
+
+    def createKnownFace(self, id_shape_info, id_extra_info, id_user):
+        self.cur.execute("INSERT INTO known_face (shape_info, extra_info, id_user) VALUES (%(shape_info_id)s, %(extra_info_id)s, %(user_id)s)" %
+            {'shape_info_id': id_shape_info, 'extra_info_id': id_extra_info, 'user_id': id_user})
+        self.db.commit()
+        print "Face created"
+        pass
+
+    def getAllResponsesByName(self, name):
+        #self.cur.execute("select id_user from user WHERE name = '"+name+"'")
+        self.cur.execute("SELECT * FROM reponse WHERE user_id = (select id_user from user WHERE name = '"+name+"')")
+        data = self.cur.fetchall()
+        print("Responses retrieved")
+        return data
         pass
 
     def exit(self):
