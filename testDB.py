@@ -5,29 +5,32 @@ import sys
 class MySQLService:
 
     def __init__(self, session):
-        db = MySQLdb.connect(host="sql8.freemysqlhosting.net",  # your host, usually localhost
-                             user="sql8179497",  # your username
-                             passwd="C9BtB7VMLW",  # your password
-                             db="sql8179497")  # name of the data base
-        self.cur = db.cursor()
+        self.i = 3
+        self.db = MySQLdb.connect(host="localhost",  # your host, usually localhost
+                             user="root",  # your username
+                             passwd="",  # your password
+                             db="pepper")  # name of the data base
+        self.cur = self.db.cursor()
         pass
 
     def getShapeInfo(self):
-        cur.execute("SELECT * FROM shape_info")
+        self.cur.execute("SELECT * FROM shape_info")
 
         # print all the first cell of all the rows
         for row in self.cur.fetchall():
             print row[2]
         pass
 
-    def post(self):
-        cur.execute("""INSERT INTO known_face (zero,alpha,beta,sizeX,sizeY) VALUES (%s,%s,%s,%s,%s)""",
-                    (0, 9.2, 5.222, 5.6, 6.5))
-        db.commit()
+    def createShapeInfo(self):
+        self.cur.execute("""INSERT INTO shape_info (id_face, zero,alpha,beta,sizeX,sizeY) VALUES (%s,%s,%s,%s,%s,%s)""",
+                    (self.i, 0, 9.2, 5.222, 5.6, 6.5))
+        self.db.commit()
+        print "ca marche"
+        self.i = self.i + 1
         pass
 
     def exit(self):
-        db.close()
+        self.db.close()
 
 
 if __name__=='__main__':
