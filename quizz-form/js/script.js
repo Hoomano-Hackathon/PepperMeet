@@ -4,6 +4,15 @@ angular.module('quizz-form', [])
         vm.questionIndex = 0;
         vm.answers = [];
         vm.showQuizz = true;
+
+        var session = new QiSession();
+        function raiseEvent() {
+            session.service("ALMemory").done(function (ALMemory) {
+                for (var answer in vm.questionsList[vm.questionIndex].answers) {
+                    ALMemory.raiseEvent(answer.content, 1);
+                }
+            })
+        };
         vm.questionsList = [
             {
                 "question": {
@@ -29,7 +38,7 @@ angular.module('quizz-form', [])
                 },
             {
                 "question": {
-                    "id": 1,
+                    "id": 2,
                     "title": "Chocolat"
                 },
 
@@ -51,7 +60,7 @@ angular.module('quizz-form', [])
                 },
             {
                 "question": {
-                    "id": 1,
+                    "id": 3,
                     "title": "A ton avis je sus une fille ou un garcon"
                 },
 
@@ -73,7 +82,7 @@ angular.module('quizz-form', [])
                 },
             {
                 "question": {
-                    "id": 1,
+                    "id": 4,
                     "title": "Question piège: quel est ton robot préféré"
                 },
 
@@ -95,7 +104,7 @@ angular.module('quizz-form', [])
                 },
             {
                 "question": {
-                    "id": 1,
+                    "id": 5,
                     "title": "Si tu devais m'emmener au restaurant, que me donnerez tu à manger"
                 },
 
@@ -117,7 +126,7 @@ angular.module('quizz-form', [])
                 },
             {
                 "question": {
-                    "id": 1,
+                    "id": 6,
                     "title": "Chocolat"
                 },
 
@@ -139,7 +148,7 @@ angular.module('quizz-form', [])
                 },
             {
                 "question": {
-                    "id": 1,
+                    "id": 7,
                     "title": "Dernière question, quel age crois-tu que j'ai"
                 },
 
@@ -163,10 +172,12 @@ angular.module('quizz-form', [])
     ]
 
         vm.submitQuestion = function (answer) {
-            if (vm.questionIndex < vm.questionsList.length-1) {
+            if (vm.questionIndex < vm.questionsList.length - 1) {
                 vm.answers.push(answer);
                 vm.questionIndex++;
-            } else { //TODO send answers to DB
+                raiseEvent();
+            } else {
+                //TODO send answers to DB
                 vm.showQuizz = false;
             }
         }
