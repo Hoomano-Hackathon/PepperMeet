@@ -1,0 +1,14 @@
+topic: ~dialogMeetingSuite()
+language: frf
+
+# Defining extra concepts out of words or group of words
+# concept:(positive) [oui "c'est parti" ok ouais]
+concept:(fille) [fille femme "une fille" "une femme" "tu es une fille" "tu es une femme"]
+concept:(garcon) [garçon mec homme "un mec" "un garçon" "un homme" "tu es un homme" "tu es un garçon" "tu es un mec"]
+
+# Catching inputs and triggering outputs
+u:(e:onStart) Question 1 : selon toi, suis-je une fille ou un garçon ?
+
+# Replying to speech
+u:(~fille) D'accord, merci. $fille=1
+u:(~garcon) D'accord, merci. $garcon=1

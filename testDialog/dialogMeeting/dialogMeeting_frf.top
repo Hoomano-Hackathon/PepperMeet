@@ -1,0 +1,12 @@
+topic: ~dialogMeeting()
+language: frf
+
+# Defining extra concepts out of words or group of words
+concept:(bonjour) [salut bonjour salutations "je te salue" "je te dis bonjour"]
+concept:(bien) [bien super "très bien" génial extra "je vais bien"]
+concept:(mal) ["pas bien" mal]
+
+u:(e:onStart) Oh, une nouvelle personne ! ~bonjour, comment vas-tu ?
+
+u:(~bien) Cool, tu vas bien ! $bien=1
+u:(~mal) Oh c'est triste que tu ne te sentes pas bien. $mal=1
