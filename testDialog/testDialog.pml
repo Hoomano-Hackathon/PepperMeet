@@ -19,11 +19,11 @@
         <Topic name="dialogMeetingSuite_frf" src="dialogMeetingSuite/dialogMeetingSuite_frf.top" topicName="dialogMeetingSuite" language="fr_FR" />
     </Topics>
     <IgnoredPaths>
+        <Path src="behavior_1/ExampleDialog" />
         <Path src="behavior_1/behavior_1" />
         <Path src="dialogMeeting" />
+        <Path src=".metadata" />
         <Path src="dialogMeetingSuite" />
         <Path src="behavior_1" />
-        <Path src=".metadata" />
-        <Path src="behavior_1/ExampleDialog" />
     </IgnoredPaths>
 </Package>

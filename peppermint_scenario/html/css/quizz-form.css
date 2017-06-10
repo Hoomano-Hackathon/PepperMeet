@@ -1,0 +1,33 @@
+.main {
+    margin: auto;
+    display: table;
+    min-width: 70%;
+}
+
+.answer {
+    height: 100px;
+}
+
+.answers {
+    display: flex;
+}
+
+.answer {
+    height: 200px;
+    background-color: azure;
+    margin-left: 10px;
+    border-radius: 8px;
+    font-size: 28px;
+}
+.answer:hover{
+    border-color: black;
+}
+
+.question {
+    text-align: center;
+    vertical-align: middle
+    font-weight: 500;
+    font-size: -webkit-xxx-large;
+    margin-bottom:70px;
+    margin-top:70px;
+}

@@ -1,0 +1,12 @@
+topic: ~dialogueQuestions1()
+language: frf
+
+# Defining extra concepts out of words or group of words
+concept:(positive) [oui "c'est parti" ok ouais]
+
+
+# Catching inputs and triggering outputs
+u:(e:onStart) J'aimerais mieux te connaître, est-ce que je peux te poser quelques questions ?
+
+# Replying to speech
+u:(~positive) Bien commençons alors. $ok=1
