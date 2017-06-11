@@ -31,7 +31,7 @@
                                 <BehaviorLayer name="behavior_layer1">
                                     <BehaviorKeyframe name="awareness" index="1">
                                         <Diagram scale="70.7107">
-                                            <Box name="Basic Awareness" id="4" localization="8" tooltip="This box is an interface to the module ALBasicAwareness.&#x0A;&#x0A;It is a simple way to make the robot establish and keep eye contact with people.&#x0A;&#x0A;V1.1.0" x="182" y="121">
+                                            <Box name="Basic Awareness" id="4" localization="8" tooltip="This box is an interface to the module ALBasicAwareness.&#x0A;&#x0A;It is a simple way to make the robot establish and keep eye contact with people.&#x0A;&#x0A;V1.1.0" x="257" y="92">
                                                 <bitmap>media/images/box/tracker/basicawareness.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -195,7 +195,7 @@
                                                 <Input name="onSignal" type="1" type_size="1" nature="1" inner="0" tooltip="The signal that must pass only once." id="2" />
                                                 <Output name="firstTime" type="1" type_size="1" nature="2" inner="0" tooltip="Signal sent first time the onSignal input is stimulated." id="3" />
                                             </Box>
-                                            <Box name="Face Tracker" id="3" localization="-1" tooltip="This box makes the robot track a face with different modes." x="416" y="168">
+                                            <Box name="Face Tracker" id="3" localization="-1" tooltip="This box makes the robot track a face with different modes." x="460" y="231">
                                                 <bitmap>media/images/box/interaction/target_face.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -351,14 +351,14 @@ class MyClass(GeneratedClass):
                                                     <Choice value="RArm" />
                                                 </Parameter>
                                                 <Parameter name="Width (m)" inherits_from_parent="0" content_type="2" value="0.1" default_value="0.1" min="0.01" max="0.6" tooltip="Width of the face in meters" id="9" />
-                                                <Parameter name="Distance X (m)" inherits_from_parent="0" content_type="2" value="0.01" default_value="0.3" min="0.01" max="5" tooltip="Distance on X axis the robot will try to maintain from its target in move modes." id="10" />
+                                                <Parameter name="Distance X (m)" inherits_from_parent="0" content_type="2" value="0.3" default_value="0.3" min="0.01" max="5" tooltip="Distance on X axis the robot will try to maintain from its target in move modes." id="10" />
                                                 <Parameter name="Threshold X (m)" inherits_from_parent="0" content_type="2" value="0.1" default_value="0.1" min="0.01" max="1" tooltip="Threshold above which the robot will move to track its target in move modes." id="11" />
                                                 <Parameter name="Distance Y (m)" inherits_from_parent="0" content_type="2" value="0" default_value="0" min="-5" max="5" tooltip="Distance on Y axis the robot will try to maintain from its target in move modes." id="12" />
-                                                <Parameter name="Threshold Y (m)" inherits_from_parent="0" content_type="2" value="0.01" default_value="0.1" min="0.01" max="1" tooltip="Threshold above which the robot will move to track its target in move modes." id="13" />
+                                                <Parameter name="Threshold Y (m)" inherits_from_parent="0" content_type="2" value="0.1" default_value="0.1" min="0.01" max="1" tooltip="Threshold above which the robot will move to track its target in move modes." id="13" />
                                                 <Parameter name="Theta (rad)" inherits_from_parent="0" content_type="2" value="0" default_value="0" min="-3.14" max="3.14" tooltip="Wz angle of the vector robot-target the robot will try to maintain in move modes." id="14" />
-                                                <Parameter name="Threshold Theta (rad)" inherits_from_parent="0" content_type="2" value="0" default_value="0.3" min="0" max="3.14" tooltip="Threshold of the angle of the vector robot-target above which the robot will move to track its target in move modes." id="15" />
+                                                <Parameter name="Threshold Theta (rad)" inherits_from_parent="0" content_type="2" value="0.3" default_value="0.3" min="0" max="3.14" tooltip="Threshold of the angle of the vector robot-target above which the robot will move to track its target in move modes." id="15" />
                                             </Box>
-                                            <Box name="Raise Event" id="5" localization="8" tooltip="Stores in NAOqi&apos;s shared memory the given value at the given key, and spreads the event to all its subscribers." x="373" y="385">
+                                            <Box name="Raise Event" id="5" localization="8" tooltip="Stores in NAOqi&apos;s shared memory the given value at the given key, and spreads the event to all its subscribers." x="545" y="356">
                                                 <bitmap>media/images/box/sensors/STM.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -389,6 +389,173 @@ class MyClass(GeneratedClass):
                                                 <Output name="onError" type="3" type_size="1" nature="1" inner="0" tooltip="Output when error is raised by the behavior. Contains the error message." id="5" />
                                                 <Parameter name="key" inherits_from_parent="0" content_type="3" value="stop" default_value="MyApplication/MyData" custom_choice="0" tooltip="" id="6" />
                                             </Box>
+                                            <Box name="Set Self Anti-Collision" id="6" localization="8" tooltip="Enable or disable the self collision protection on some specific part of the robot&apos;s body.&#x0A;&#x0A;For example if the protection is enabled on his left arm he will move his arm all the&#x0A;same than when it is not but avoiding his other body parts." x="138" y="470">
+                                                <bitmap>media/images/box/sensors/anti_collision.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onLoad(self):
+        self.motion = ALProxy( "ALMotion" )
+
+    def onUnload(self):
+        pass
+
+    def onInput_onSet(self):
+        # is it enable or disable asked?
+        enable = (self.getParameter("Action") == "Enable")
+        # enable/disable collision protection
+        result = self.motion.setCollisionProtectionEnabled( self.getParameter("Body part"), enable )
+        if( result ):
+            self.success()
+        else:
+            self.logger.warning( "Disabling collision protection failed. Deactivation succeeds only if the current state of the chain is not in collision. If you want to deactivate collision of both arms, they need to be off collision." )
+            self.failure()]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onSet" type="1" type_size="1" nature="1" inner="0" tooltip="The anti-collision feature is enabled or disabled when this input is stimulated." id="2" />
+                                                <Output name="success" type="1" type_size="1" nature="2" inner="0" tooltip="Signal sent if the collision protection has been successfully enabled or disabled.&#x0A;&#x0A;Note: The only case where there is a failure is when you try to disable the&#x0A;anti-collision while it is currently in collision with some part of his body." id="3" />
+                                                <Output name="failure" type="1" type_size="1" nature="2" inner="0" tooltip="Signal sent if the collision protection has failed to be enabled or disabled.&#x0A;&#x0A;Note: The only case where there is a failure is when you try to disable the&#x0A;anti-collision while it is currently in collision with some part of his body." id="4" />
+                                                <Parameter name="Body part" inherits_from_parent="0" content_type="3" value="Arms" default_value="Arms" custom_choice="0" tooltip="Body part which avoids the collision." id="5">
+                                                    <Choice value="Arms" />
+                                                    <Choice value="LArm" />
+                                                    <Choice value="RArm" />
+                                                </Parameter>
+                                                <Parameter name="Action" inherits_from_parent="0" content_type="3" value="Enable" default_value="Enable" custom_choice="0" tooltip="Enable or disable the collision protection." id="6">
+                                                    <Choice value="Disable" />
+                                                    <Choice value="Enable" />
+                                                </Parameter>
+                                            </Box>
+                                            <Box name="Set External Anti-Collision" id="7" localization="8" tooltip="Enable or disable the collision protection on some specific part of the robot&apos;s body with external environment.&#x0A;&#x0A;For example if the protection is enabled on his left arm he will move his arm all the&#x0A;same than when it is not but avoiding his other body parts." x="180" y="293">
+                                                <bitmap>media/images/box/sensors/anti_collision.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onLoad(self):
+        self.motion = ALProxy( "ALMotion" )
+
+    def onUnload(self):
+        pass
+
+    def onInput_onSet(self):
+        # is it enable or disable asked?
+        enable = (self.getParameter("Action") == "Enable")
+        # enable/disable collision protection
+        self.motion.setExternalCollisionProtectionEnabled( self.getParameter("Body part"), enable )
+        self.output() # activate output of the box]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onSet" type="1" type_size="1" nature="1" inner="0" tooltip="The anti-collision feature is enabled or disabled when this input is stimulated." id="2" />
+                                                <Output name="output" type="1" type_size="1" nature="2" inner="0" tooltip="" id="3" />
+                                                <Parameter name="Body part" inherits_from_parent="0" content_type="3" value="Arms" default_value="All" custom_choice="0" tooltip="Body part which avoids the collision." id="4">
+                                                    <Choice value="All" />
+                                                    <Choice value="Move" />
+                                                    <Choice value="Arms" />
+                                                    <Choice value="LArm" />
+                                                    <Choice value="RArm" />
+                                                </Parameter>
+                                                <Parameter name="Action" inherits_from_parent="0" content_type="3" value="Enable" default_value="Enable" custom_choice="0" tooltip="Enable or disable the collision protection." id="5">
+                                                    <Choice value="Disable" />
+                                                    <Choice value="Enable" />
+                                                </Parameter>
+                                            </Box>
+                                            <Box name="Subscribe to Event" id="8" localization="8" tooltip="Subscribes to a signal on a NAOqi2 service, or an event in NAOqi&apos;s shared memory&#x0A;When subscribed, the output will be triggered every time the signal is emitted or the event is raised." x="612" y="503">
+                                                <bitmap>media/images/box/sensors/STM.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        pass
+
+    def onLoad(self):
+        import threading
+        self.lock = threading.RLock()
+        self.signal = None
+        self.linkId = -1
+
+    def onUnload(self):
+        with self.lock:
+            self.unsubscribe()
+
+    def onInput_onStart(self):
+        with self.lock:
+            self.unsubscribe()
+            event = self.getParameter("event")
+
+            if(len(event) == 0):
+                self.onError("No event or signal given.")
+                return
+
+            params = event.split(".")
+            if(len(params) == 2):
+                try:
+                    self.signal = getattr(self.session().service(params[0]), params[1])
+                except Exception as e:
+                    mem = self.session().service("ALMemory")
+                    if(event in mem.getEventList()):
+                        self.signal = mem.subscriber(event).signal
+                    else:
+                        self.onError(event + ": no such service.signal pair found, and no such event declared in ALMemory. Aborting.")
+                        return
+            else:
+                self.signal = self.session().service("ALMemory").subscriber(event).signal
+
+            self.linkId = self.signal.connect(self.reemitSignal)
+
+    def onInput_onStop(self):
+        with self.lock:
+            self.unsubscribe()
+            self.onStopped()
+
+    def unsubscribe(self):
+        if(self.signal is not None and self.linkId != -1):
+            self.signal.disconnect(self.linkId)
+
+        del self.signal
+        self.signal = None
+        self.linkId = -1
+
+    def reemitSignal(self, *args):
+        if(len(args) == 0):
+            self.onEvent()
+        elif(len(args) == 1):
+            self.onEvent(args[0])
+        else:
+            self.onEvent(args)]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="When this input is activated, the box will try to subscribe to the signal or the event passed in the box parameter.&#x0A;&#x0A;If it is retriggered and the parameter has changed, the box will undo the previous subscription and subscribe to the new signal or the new event." id="2" />
+                                                <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Stop the box and cancel the subscription, if any." id="3" />
+                                                <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
+                                                <Output name="onError" type="3" type_size="1" nature="1" inner="0" tooltip="This output is triggered when the box encounters an error, and contains the error message." id="5" />
+                                                <Output name="onEvent" type="0" type_size="1" nature="2" inner="0" tooltip="This output is triggered each time the signal/event to which the box is connected is emitted/raised. It will carry the payload associated with the signal emission/event raise." id="6" />
+                                                <Parameter name="event" inherits_from_parent="0" content_type="3" value="endContact" default_value="" custom_choice="0" tooltip='This parameter describes the signal to connect to, and the service advertising this signal.&#x0A;&#x0A;Use the pattern &quot;Service.Signal&quot; to connect to a signal, or the event key to connect to an event.' id="7" />
+                                            </Box>
+                                            <Box name="Goto (endContact)" id="9" localization="8" tooltip="Jump to the frame name set in parameters." x="958" y="449">
+                                                <bitmap>media/images/box/box-timeLine.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onInput_onGo(self):
+        self.getParentTimeline().goTo(self.getParameter("Frame name"))]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onGo" type="1" type_size="1" nature="1" inner="0" tooltip="Parent timeline gotoTimeline when a signal is received on this input." id="2" />
+                                                <Parameter name="Frame name" inherits_from_parent="0" content_type="3" value="endContact" default_value="" custom_choice="0" tooltip="Name of the frame you want to go to." id="3" />
+                                            </Box>
                                             <Link inputowner="4" indexofinput="2" outputowner="0" indexofoutput="1" />
                                             <Link inputowner="1" indexofinput="2" outputowner="2" indexofoutput="3" />
                                             <Link inputowner="3" indexofinput="2" outputowner="4" indexofoutput="6" />
@@ -396,6 +563,264 @@ class MyClass(GeneratedClass):
                                             <Link inputowner="0" indexofinput="5" outputowner="0" indexofoutput="4" />
                                             <Link inputowner="3" indexofinput="2" outputowner="4" indexofoutput="5" />
                                             <Link inputowner="5" indexofinput="2" outputowner="3" indexofoutput="6" />
+                                            <Link inputowner="4" indexofinput="2" outputowner="3" indexofoutput="5" />
+                                            <Link inputowner="6" indexofinput="2" outputowner="0" indexofoutput="1" />
+                                            <Link inputowner="7" indexofinput="2" outputowner="6" indexofoutput="3" />
+                                            <Link inputowner="4" indexofinput="2" outputowner="7" indexofoutput="3" />
+                                            <Link inputowner="8" indexofinput="2" outputowner="0" indexofoutput="1" />
+                                            <Link inputowner="9" indexofinput="2" outputowner="8" indexofoutput="6" />
+                                        </Diagram>
+                                    </BehaviorKeyframe>
+                                    <BehaviorKeyframe name="endContact" index="148">
+                                        <Diagram>
+                                            <Box name="Say" id="1" localization="8" tooltip="Say some text. Note that you must open the box to enter the text." x="157" y="44">
+                                                <bitmap>media/images/box/interaction/say.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onLoad(self):
+        self.bIsRunning = False
+
+    def onUnload(self):
+        self.bIsRunning = False
+
+    def onInput_onStart(self):
+        self.bIsRunning = True
+
+    def onInput_onStop(self):
+        if( self.bIsRunning ):
+            self.onUnload()
+            self.onStopped()]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when Diagram is loaded." id="1" />
+                                                <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this Input." id="2" />
+                                                <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this Input." id="3" />
+                                                <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished or stopped." id="4" />
+                                                <Parameter name="Voice shaping (%)" inherits_from_parent="0" content_type="1" value="100" default_value="100" min="50" max="150" tooltip='Used to modify at runtime the voice feature (tone, speed). In a slighty&#x0A;different way than pitch and speed, it gives a kind of &quot;gender or age&#x0A;modification&quot; effect.&#x0A;&#x0A;For instance, a quite good male derivation of female voice can be&#x0A;obtained setting this parameter to 78%.&#x0A;&#x0A;Note: For a better effect, you can compensate this parameter with the&#x0A;speed parameter. For example, if you want to decrease by 20% the voice&#x0A;shaping, you will have to increase by 20% the speed to keep a constant&#x0A;average speed.&#x0A;&#x0A;!Warning! This feature is not available yet in Japanese, Chinese and Korean.' id="5" />
+                                                <Parameter name="Speed (%)" inherits_from_parent="0" content_type="1" value="100" default_value="100" min="50" max="200" tooltip="Changes the speed of the voice.&#x0A;&#x0A;Note: For a better effect, you can compensate this parameter with the voice&#x0A;shaping parameter. For example, if you want to increase by 20% the speed, you&#x0A;will have to decrease by 20% the voice shaping to keep a constant average&#x0A;speed.&#x0A;&#x0A;!Warning! This feature is not available yet in Japanese, Chinese and Korean." id="6" />
+                                                <Timeline enable="0">
+                                                    <BehaviorLayer name="behavior_layer1">
+                                                        <BehaviorKeyframe name="keyframe1" index="1">
+                                                            <Diagram>
+                                                                <Box name="Say Text" id="2" localization="8" tooltip="Say the text received on its input." x="422" y="65">
+                                                                    <bitmap>media/images/box/interaction/say.png</bitmap>
+                                                                    <script language="4">
+                                                                        <content>
+                                                                            <![CDATA[import time
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+        self.tts = ALProxy('ALTextToSpeech')
+        self.ttsStop = ALProxy('ALTextToSpeech', True) #Create another proxy as wait is blocking if audioout is remote
+
+    def onLoad(self):
+        self.bIsRunning = False
+        self.ids = []
+
+    def onUnload(self):
+        for id in self.ids:
+            try:
+                self.ttsStop.stop(id)
+            except:
+                pass
+        while( self.bIsRunning ):
+            time.sleep( 0.2 )
+
+    def onInput_onStart(self, p):
+        self.bIsRunning = True
+        try:
+            sentence = "\RSPD="+ str( self.getParameter("Speed (%)") ) + "\ "
+            sentence += "\VCT="+ str( self.getParameter("Voice shaping (%)") ) + "\ "
+            sentence += str(p)
+            sentence +=  "\RST\ "
+            id = self.tts.post.say(str(sentence))
+            self.ids.append(id)
+            self.tts.wait(id, 0)
+        finally:
+            try:
+                self.ids.remove(id)
+            except:
+                pass
+            if( self.ids == [] ):
+                self.onStopped() # activate output of the box
+                self.bIsRunning = False
+
+    def onInput_onStop(self):
+        self.onUnload()]]>
+</content>
+                                                                    </script>
+                                                                    <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when Diagram is loaded." id="1" />
+                                                                    <Input name="onStart" type="3" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this Input." id="2" />
+                                                                    <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this Input." id="3" />
+                                                                    <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when Box behavior is finished." id="4" />
+                                                                    <Parameter name="Voice shaping (%)" inherits_from_parent="1" content_type="1" value="100" default_value="100" min="50" max="150" tooltip='Used to modify at runtime the voice feature (tone, speed). In a slighty&#x0A;different way than pitch and speed, it gives a kind of &quot;gender or age&#x0A;modification&quot; effect.&#x0A;&#x0A;For instance, a quite good male derivation of female voice can be&#x0A;obtained setting this parameter to 78%.&#x0A;&#x0A;Note: For a better effect, you can compensate this parameter with the&#x0A;speed parameter. For example, if you want to decrease by 20% the voice&#x0A;shaping, you will have to increase by 20% the speed to keep a constant&#x0A;average speed.' id="5" />
+                                                                    <Parameter name="Speed (%)" inherits_from_parent="1" content_type="1" value="100" default_value="100" min="50" max="200" tooltip="Changes the speed of the voice.&#x0A;&#x0A;Note: For a better effect, you can compensate this parameter with the voice&#x0A;shaping parameter. For example, if you want to increase by 20% the speed, you&#x0A;will have to decrease by 20% the voice shaping to keep a constant average&#x0A;speed." id="6" />
+                                                                </Box>
+                                                                <Box name="Localized Text" id="5" localization="8" tooltip="Send on the output the text associated with the robot&apos;s current voice language.&#x0A;You can display and edit the text associated with any language by&#x0A;selecting the language in the combobox.&#x0A;&#x0A;!!Warning!! The text sent on the output is NOT the displayed one but the one&#x0A;associated with the robot&apos;s current voice language." plugin="localizationbox_plugin" x="114" y="68">
+                                                                    <bitmap>media/images/box/interaction/vocabulary.png</bitmap>
+                                                                    <script language="4">
+                                                                        <content>
+                                                                            <![CDATA[# /!\ Generated content. Do not edit!
+class MyClass(GeneratedClass):
+	def __init__(self):
+		try: # disable autoBind
+			GeneratedClass.__init__(self, False)
+		except TypeError: # if NAOqi < 1.14
+			GeneratedClass.__init__( self )
+
+		self.tts = ALProxy("ALTextToSpeech")
+		self.sentences = {
+			"Arabic" : " مرحبا ",
+			"Czech" : " Ahoj ",
+			"Danish" : " Hej ",
+			"German" : " Hallo ",
+			"Greek" : "  ",
+			"English" : " Hello ",
+			"Spanish" : " Hola ",
+			"Finnish" : " Hei ",
+			"French" : " Merci pour toutes ces réponses.\nCela a été un réel plaisir de discute.\nJ\'espère pouvoir rencontrer plein de personnes aussi intéressantes que toi dans ma vie.\nAu revoir. ",
+			"Italian" : " Ciao ",
+			"Japanese" : " こんにちは ",
+			"Korean" : " 안녕하세요 ",
+			"Dutch" : " Hallo ",
+			"Norwegian" : "  ",
+			"Polish" : " Cześć ",
+			"Brazilian" : " Olá ",
+			"Portuguese" : " Olá ",
+			"Russian" : " Привет ",
+			"Swedish" : " Hallå ",
+			"Turkish" : " Merhaba ",
+			"Chinese" : " 你好 "
+		}
+
+	def onInput_onStart(self):
+		sDefaultLang = self.tts.getLanguage()
+		self.onStopped(self.sentences[sDefaultLang])]]>
+</content>
+                                                                    </script>
+                                                                    <pluginContent>
+                                                                        <arabic>
+                                                                            <![CDATA[مرحبا]]>
+</arabic>
+                                                                        <czech>
+                                                                            <![CDATA[Ahoj]]>
+</czech>
+                                                                        <danish>
+                                                                            <![CDATA[Hej]]>
+</danish>
+                                                                        <german>
+                                                                            <![CDATA[Hallo]]>
+</german>
+                                                                        <greek>
+                                                                            <![CDATA[]]>
+</greek>
+                                                                        <english>
+                                                                            <![CDATA[Hello]]>
+</english>
+                                                                        <spanish>
+                                                                            <![CDATA[Hola]]>
+</spanish>
+                                                                        <finnish>
+                                                                            <![CDATA[Hei]]>
+</finnish>
+                                                                        <french>
+                                                                            <![CDATA[Merci pour toutes ces réponses.
+Cela a été un réel plaisir de discute.
+J'espère pouvoir rencontrer plein de personnes aussi intéressantes que toi dans ma vie.
+Au revoir.]]>
+</french>
+                                                                        <italian>
+                                                                            <![CDATA[Ciao]]>
+</italian>
+                                                                        <japanese>
+                                                                            <![CDATA[こんにちは]]>
+</japanese>
+                                                                        <korean>
+                                                                            <![CDATA[안녕하세요]]>
+</korean>
+                                                                        <dutch>
+                                                                            <![CDATA[Hallo]]>
+</dutch>
+                                                                        <norwegian>
+                                                                            <![CDATA[]]>
+</norwegian>
+                                                                        <polish>
+                                                                            <![CDATA[Cześć]]>
+</polish>
+                                                                        <brazilian>
+                                                                            <![CDATA[Olá]]>
+</brazilian>
+                                                                        <portuguese>
+                                                                            <![CDATA[Olá]]>
+</portuguese>
+                                                                        <russian>
+                                                                            <![CDATA[Привет]]>
+</russian>
+                                                                        <swedish>
+                                                                            <![CDATA[Hallå]]>
+</swedish>
+                                                                        <turkish>
+                                                                            <![CDATA[Merhaba]]>
+</turkish>
+                                                                        <chinese>
+                                                                            <![CDATA[你好]]>
+</chinese>
+                                                                        <language>8</language>
+                                                                    </pluginContent>
+                                                                    <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                                    <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Data is sent on the output when this input is stimulated." id="2" />
+                                                                    <Output name="onStopped" type="3" type_size="1" nature="1" inner="0" tooltip="Data sent when asked." id="3" />
+                                                                </Box>
+                                                                <Link inputowner="0" indexofinput="4" outputowner="2" indexofoutput="4" />
+                                                                <Link inputowner="5" indexofinput="2" outputowner="0" indexofoutput="2" />
+                                                                <Link inputowner="2" indexofinput="2" outputowner="5" indexofoutput="3" />
+                                                            </Diagram>
+                                                        </BehaviorKeyframe>
+                                                    </BehaviorLayer>
+                                                </Timeline>
+                                                <Resource name="Speech" type="Lock" timeout="0" />
+                                            </Box>
+                                            <Box name="Rest" id="3" localization="0" tooltip="Call a Rest process.&#x0A;Apply crouch posture if the robot is Stand then unStiff all joints" x="486" y="47">
+                                                <bitmap>media/images/box/movement/stiffness.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        pass
+
+    def onLoad(self):
+        self.motion = ALProxy("ALMotion")
+        pass
+
+    def onUnload(self):
+        pass
+
+    def onInput_onStart(self):
+        self.motion.rest()
+        self.onStopped() #~ activate output of the box
+        pass
+
+    def onInput_onStop(self):
+        self.onUnload() #~ it is recommended to call onUnload of this box in a onStop method, as the code written in onUnload is used to stop the box as well
+        pass]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+                                                <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
+                                                <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
+                                                <Resource name="All motors" type="Lock" timeout="0" />
+                                                <Resource name="Stiffness" type="Lock" timeout="0" />
+                                            </Box>
+                                            <Link inputowner="1" indexofinput="2" outputowner="0" indexofoutput="1" />
+                                            <Link inputowner="3" indexofinput="2" outputowner="1" indexofoutput="4" />
+                                            <Link inputowner="0" indexofinput="5" outputowner="3" indexofoutput="4" />
                                         </Diagram>
                                     </BehaviorKeyframe>
                                 </BehaviorLayer>
@@ -437,6 +862,7 @@ class MyClass(GeneratedClass):
                                             </Box>
                                             <Link inputowner="3" indexofinput="2" outputowner="2" indexofoutput="6" />
                                             <Link inputowner="2" indexofinput="2" outputowner="0" indexofoutput="1" />
+                                            <Link inputowner="3" indexofinput="2" outputowner="2" indexofoutput="7" />
                                         </Diagram>
                                     </BehaviorKeyframe>
                                     <BehaviorKeyframe name="apprentissage_nom" index="64">
@@ -729,7 +1155,7 @@ class MyClass(GeneratedClass):
                                                 <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
                                                 <Output name="wordRecognized" type="3" type_size="1" nature="2" inner="0" tooltip="Word recognized with a confidence higher than the threshold set in the box parameters." id="5" />
                                                 <Output name="onNothing" type="1" type_size="1" nature="2" inner="0" tooltip="Nothing has been understood." id="6" />
-                                                <Parameter name="Word list" inherits_from_parent="0" content_type="3" value="yes;no" default_value="yes;no" custom_choice="0" tooltip="Try to recognize a word from a list of words set in the box parameters." id="7" />
+                                                <Parameter name="Word list" inherits_from_parent="0" content_type="3" value="Jacques;Jad;Jan;Jana;Jasmine;Jeremie;Jeremy;Joachim;Johan;Johanna;Jonathan;Jordan;Joseph;Jules;Justin;Karl;Kathleen;Kelly;Kiara;Kilyan;Kyllian;Lahna;Lancelot;Lara;Leana;Lena;Lena;Leon;Leopold;Lina;Lindsay;Loïc;Lola;Lorenzo;Louane;Louise;Lucas;Lucien;Ludivine;Luis;Lydia;Lyne;Maceo;Maëlle;Maeva;Mahamadou;Mahaut;Maïssane;Malak;Malik;Manel;Manon;Mariame;Marilou;Marin;Marina;Marthe;Martin;Marvin;Marwan;Mateo;Matthieu;Maud;May;Maylis;Mehdi;Melanie;Mika;Mohamed;Mona;Morgan;Mouhamed;Nadia;Nahil;Nassim;Nathaniel;Neela;Neil;Nelson;Nicolas;Nicole;Niels;Nikita;Nina;Noemie;Noha;Noor;Nour;Octave;Olivier;Orlane;Owen;Pablo;Paris;Philemon;Philippe;Rachel;Raphael;Rebecca;Romain;Ilona;Isaac;Jad;James;Jessica;Johan;Joseph;Josephine;Jules;Julian;Julien;Justin;Justine;Kiara;Latifa;Laurine;Leane;Leni;Lenny;Leopoldine;Lili;Loïc;Maëva;Maïa;Maïmouna;Maïwenn;Makan;Manel;Marc;Marc-Antoine;Margot;Marguerite;Maria;Marin;Marion;Marwa;Marwane;Mateo;Mehdi;Melvil;Ninon;Niouma;Orlane;Patrick;Paul-Antoine;Rafael;Rafaël;Rami;Ramy;Reda;Samy;Shana;Thaïs;Theodore;Thibaud;Thomas;Tim;Timothee;Tom;Vadim;Vianney;Virgile;Wassim;Yanis;Abel;Abigaël;Adel;Adèle;Alexandre;Aurelien;Avril;Christine;Clement;Cloe;Clotilde;Colin;Constance;Constantin;Dora;Doriane;Edouard;Elea;Elena;Eleonore;Elia;Elie;Elya;Erin;Erwann;Eve;Eytan;Fanny;Farès;Fatou;Felicie;Gabriela;Gaëlle;Gaïa;Georges;Germain;Mohammad;Alan;Chahine;Vladimir;Jacob;Andreas;Jean-Baptiste;Christopher;Aydan;Loan;Lukas;Anes;Romeo;Guilhem;Marwane;Mylan;Lilian;Nathaniel;Aris;Pierre-Louis;Melvil;Nolhan;Killian;Wissem;Ugo;Samba;Liham;Adame;Hocine;Arslane;Aïden;Marc-Antoine;El;Tao;Joël;Nabil;Laurent;Jarod;Luis;Adam;Joseph;Gaspard;Maxime;Léo;Yanis;Timothée;Adrien;Axel;David;Elias;Jean;William;Pierre;Milo;Hadrien;Marceau;Imran;Lenny;Matthieu;Maximilien;Georges;Naïm;Alban;Anas;Aurélien;Nael;Adel;Ousmane;Roman;Amadou;Bilal;Zacharie;Luka;Aurèle;Ilian;Bastien;André;Dylan;Elijah;Mathieu;Max;Souleymane;Etienne;Jonathan;Ezra;Oumar;Étienne;Virgile;Wael;Youcef;Jason;Éloi;Ferdinand;Ishaq;Jack;Lilian;Marlon;Naïl;Aïdan;Arthus;Abd;Adama;Adil;Aidan;Aïdan;Aiden;Aïssata;Akram;Alba;Alexandre;Alexis;Ali;Alia;Alice;Alistair;Aloys;Alyah;Amaury;Ambrine;Amelia;Aminata;Amira;Amy;Anaëlle;Andre;Andy;Angel;Ania;Anne;Anselme;Antoine;Arielle;Aris;Armel;Arsène;Asia;Asma;Astrid;Aurore;Avril;Aylin;Ayoub;Barthelemy;Berenice;Billie;Blanche;Camil;Camila;Capucine;Celeste;Celestin;Celian;Cesar;Chiara;Christian;Christophe;Clara;Clarisse;Clelia;Cleophee;Clovis;Colin;Constance;Coralie;Corentin;Damien;Dani;Daniel;Darius;Dayane;Dimitri;Eden;Eglantine;Elea;Eleanore;Elias;Eline;Elisabeth;Elissa;Elliot;Eloïse;Elyssa;Emilien;Emmy;Emna;Emy;Eric;Erwan;Ethan;Ethel;Eugène;Eugenie;Eytan;Fantine;Fatou;Ferdinand;Flore;Florence;Franklin;Gabriel;Arthur;Lucas;Gaspard;Martin;Isaac;Charles;Camille;Adrien;Timothée;Daniel;William;Ilyes;Solal;Marin;Amine;Georges;Nicolas;Samy;Anton;Armand;Kaïs;Vadim;Ernest;Andrea;Mamadou;Balthazar;Elliot;Lino;Lorenzo;Yassine;Alban;Jonas;Mohammed;Hippolyte;Ilyan;Jad;Jayden;Mathys;Rafaël;Rayane;Emile;Julian;Elio;Abdoulaye;Nassim;Erwan;Neil;Salim;Sofiane;Dimitri;Ferdinand;Lazare;Lyam;Fares;Ismaïl;Lassana;Lilian;Rémi;Youcef;Cheick;Dan;Lamine;Maxim;Milhan;Chris;Guillaume;Leandro;Léo-Paul;Aris;Elouan;Gary;Lukas;Selyan;Zakarya;Alfred;Filip;Hamidou;Ismail;Jack;Muhammad;Qassim;Waël;Yahya;Aboubakar;Aïssa;Anes;Nana;Nicole;Paola;Aaliyah;Amalia;Bonnie;Camila;Cassandra;Cécile;Charlize;Gloria;Jane;Shana;Amanda;Rosalie;Sabrina;Sabrine;Safa;Salome;Sandro;Sebastian;Sebastien;Shaï;Soline;Sophia;Stanislas;Tamara;Theo;Thomas;Tiphaine;Ulysse;Xavier;Yannis;Younes;Youri;Zakarya;Zineb;Romane;Ryan;Sara;Sidonie;Sienna;Solal;Stella;Suzanne;Syrine;Tali;Tania;Thea;Timothe;Virgile;Younès;BenoÃ®t;GrÃ¢ce;Abel;Aboubacar;Adja;Ahmed;Aïcha;Aïdan;Aksel;Alassane;Albert;Alexandre;Aliyah;Alya;Ambroise;Amina;Amine;Anas;Anastasia;Andrew;Andy;Anis;Anissa;Anne;Anouck;Antonio;Antony;Apolline;Ariane;Aristide;Assia;Aurelie;Aurore;Badis;Balthazar;Baya;Benjamin;Binta;Boubacar;Calixte;Camila;Candice;Celine;Charly;Chiara;Cindy;Clara;Clarence;Clemence;Clotilde;Colombe;Côme;Constance;Constantin;Coralie;Corentin;Dan;Dana;Djeneba;Elina;Elisa;Elisa;Joachim;Laëtitia;Lorenzo;Lou-Ann;Louka;Lucas;Lucie;Lucille;Luka;Lyna;Maëlys;Maeva;Mamadou;Marianne;Marvin;Matheo;Matisse;Maude;Maxim;Melanie;Melodie;Merlin;Mickaël;Milan;Mory;Moustapha;Nathan;Nesrine;Niels;Nora;Paola;Pia;Raphael;Rayan;Remi;Roman;Rose;Rudy;Sami;Sandra;Sebastian;Seydou;Simeon;Sohane;Solal;Soline;Sonia;Soraya;Stanislas;Stefan;Stephanie;Sylvie;Tania;Tessa;Wendy;Jonas;Joyce;Judith;Julianne;Julie;Justin;Kamil;Kevin;Kiara;Lamine;Lara;Laurine;Leane;Leïla;Leonard;Lia;Lilia;Lilian;Lindsay;Liv;Loane;Lou-Ann;Louisa;Lounis;Lucia;Lucien;Luis;Maëva;Maïmouna;Mamadou;Marcel;Mariama;Mariame;Marianne;Marius;Mathilda;Matthias;Maylis;Melina;Melodie;Melvyn;Mina;Moussa;Moustapha;Natacha;Chahine;Léandre;Menahem;Soan;Zachary;Abraham;Ilan;Matisse;Andrei;Aymeric;Ben;Emir;Eyal;Harry;Logan;Matis;Nadir;Nathanael;Nil;Sebastian;Walid;Alessio;Dario;Emil;Hayden;Stéphane;Thierno;Alhassane;Charlie;Charly;Chmouel;Eythan;Firas;Hamidou;Henry;Ilhan;Jan;Kendrick;Merlin;Mohamed-Amine;Nahel;Patrick;Steven;Abd;Adame;Arnaud;Aviel;Barthélemy;Christopher;Edmond;El;Eneko;Fahd;Frédéric;Giovanni;Jude;Khalifa;Liham;Luke;Miguel;Mohamed-Ali;Nelson;Nolhan;Paulin;Raoul;Tidiane;Yasser;Zyad;Jeanne;Juliette;Eva;Nina;Julia;Lucie;Agathe;Elsa;Romy;Iris;Sara;Mariam;Céleste;Mohamed;Noah;Sacha;Oscar;Nathan;Samuel;Antoine;Thomas;Aaron;Simon;Clément;Axel;Rayan;Alexis;Valentin;Auguste;Jean;Théo;Octave;Gabriella;BenoÃ®t;Gaetan;Garance;Georges;Gloria;Goundo;Gregoire;Guillaume;Hadja;Hajar;Hana;Hanna;Henri;Hillel;Hortense;Ilias;Ilyan;Ilyane;Inaya;Inès;Ismael;Issam;Jacques;Jeremy;Joachim;Joe;Johann;Joseph;Juan;Julia;Kadidia;Kamil;Kayla;Kelyan;Kenan;Kenza;Keyla;Khadidja;Khalil;Kilian;Kim;Laetitia;Lara;Laure;Leandro;Leonardo;BenoÃ®t;Marwane;Mathilde;Matteo;Matthieu;Max;Maxim;Meline;Melvin;Melvyn;Mickael;Mickaël;Mila;Mina;Moïra;Morgan;Moussa;Moustapha;Nayla;Nell;Nelly;Nelya;Nermine;Nesrine;Nina;Nino;Ninon;Nolhan;Noor;Noura;Octave;Oren;Oscar;Pauline;Philippine;Philomène;Rachel;Rafaël;Rawane;Reda;Remi;Riyad;Rodrigue;Roman;Romeo;Rose;Roxane;Ryad;Rym;Samba;Sana;Sarah;Selène;Hajar;Haya;Kiara;Laetitia;Laurine;Leonor;Mayline;Rym;Chayma;Eulalie;Jannah;Joey;Kadidja;Kim;Lucille;Rivka;Salimata;Scarlett;Zohra;Angélina;Clothilde;Dounia;Elif;Joanne;Kadiatou;Loane;Maeva;Naya;Noura;Olympia;Philippa;Quitterie;Tiphaine;Anaya;Annabelle;Calista;Catherine;Dalya;Djenna;Elona;Faith;Joana;Leïna;Liya;Liyah;Lyne;Mado;Maéva;Mélodie;Meryem;Naïma;Natacha;Nesrine;Romie;Samantha;Zineb;Elena;Elisa;Elise;Elliott;Eloane;Elodie;Eloi;Emilie;Emma;Enora;Esteban;Etienne;Ewan;Fatoumata;Felix;Fiona;Fleur;François;Gabrielle;Gaëlle;Gauthier;Hadriel;Harry;Hawa;Haya;Helène;Hind;Ibrahima;Ilona;Imène;Ines;Isabelle;Ismaël;Ismaïl;Ivan;Iyed;Jade;Janna;Jasmine;Joakim;Joan;Joanne;Johan;Jonah;Emeline;Emma;Emna;Emy;Etienne;Eugène;Eva;Evan;Eytan;Farah;Faustine;Felix;Fiona;Flavie;Flora;Florian;Gabriel;Gaston;Giulia;Gregoire;Hamza;Hana;Harry;Hayden;Heloïse;Hermine;Hippolyte;Hubert;Hugo;Ibrahim;Ibrahima;Ilhan;Inës;Inès;Isaure;Ivan;Abdoulaye;Abel;Adel;Adem;Adriana;Aïssata;Alassane;Alice;Amalia;Amani;Amelia;Amin;Aminata;Amir;Andreas;Angela;Angelique;Anselme;Athenaïs;Auguste;Bastian;Bastien;Bertille;Bilal;Blanche;Camelia;Cameron;Candice;Capucine;Cassandre;Cecilia;Celeste;Celia;Celina;Charlie;Chloe;Christopher;Claire;Clemence;Cleophee;Constantin;Corentin;Cyrian;Daniel;Darius;Deborah;Deborah;Delphine;Diana;Djeneba;Dominique;Dorian;Dune;Ela;Eleanor;Elias;Elie;Eline;Elisa;Elvire;Elya;Elyssa;Enora;Estelle;Neïla;Nelson;Niels;Nils;Nina;Noa;Norah;Olga;Olympe;Owen;Philippe;Quentin;Rafael;Rafaël;Remi;Richard;Romane;Romeo;Rosalie;Roxanne;Ryan;Salome;Sandro;Sasha;Satine;Shaïma;Shaïna;Shani;Shirel;Sidney;Sophie;Soren;Souleymane;Suzanne;Swann;Sybille;Tali;Tania;Teo;Thibaut;Tiago;Tidiane;Ulysse;Valerie;Vanessa;Vincent;Virgile;Wendy;Yaël;Yani;Yanis;Yoav;Yohan;Youssef;Zachary;Zineb;Clotilde;Colette;Coumba;Cyrus;Dana;Dario;David;Eden;Edouard;Edwin;Elea;Eleonore;Elijah;Elisabeth;Elise;Eliza;Elliott;Eloi;Elora;Ema;Emilia;Emilien;Emily;Emmanuel;Emy;Erine;Ewan;Eya;Eytan;Fanny;Farès;Felix;Frederic;Gaïa;Garance;Gaspar;Giulia;Gloria;Gregoire;Hamed;Helène;Hermine;Idriss;Ilyès;Amir;Gabin;Théodore;Edgar;Imran;Lenny;Loïc;Bastien;Virgile;Elijah;Aubin;Ben;Matthias;Bakary;Imrane;Kamil;Colin;Dorian;Naïl;Adil;Mahamadou;Orso;Rémy;Abraham;Aidan;Alassane;Archibald;Ayman;Dario;Henry;Ilhan;Jacob;Kassim;Louay;Marley;Matias;Morgan;Vladimir;Eloi;Giacomo;Harouna;Jonah;Mattéo;Timothy;Andy;Eyal;Jean-Baptiste;Macéo;Sebastian;Soulayman;Tidiane;Yannis;Zack;Alec;Mamoudou;Massil;Soren;Swan;Yacouba;Amara;Antoni;Armel;Aymeric;Étienne;Fadi;Florian;Joaquim;Makan;Meir;Pedro;Ryad;Sidi;Stefan;Alice;Camille;Lina;Gabrielle;Lucie;Clara;Margot;Suzanne;Madeleine;Fatima;Roxane;Lila;Aminata;Elena;Elisa;Lise;Sophie;Bérénice;Myriam;Hawa;Hana;Sirine;Aliya;Awa;Pia;Thaïs;Sixtine;Sidonie;Sienna;Sofia;Solange;Sophia;Sophie;Stephane;Steve;Swan;Tal;Tali;Tania;Tasnime;Thaïs;Thalia;Thelma;Theo;Therèse;Thibault;Timothee;Tomas;Tommy;Valentine;Virgile;Viviane;Wandrille;Wissem;Yamina;Yassin;Youmna;Yse;Yves;Zacharie;Zachary;Zineb;Abdoulaye;Alexy;Alma;Alyssa;Amaury;Ambrine;Ambroise;Amel;Amelie;Anaïs;Bilel;Bintou;Blanche;Boubacar;Charlotte;Cindy;Claire;Clara;Dimitri;Elise;Ernest;Erwan;Ethan;Eve;Idriss;Iris;Isaure;Isee;Issa;Issam;Iyed;Jacques;Jad;Jaden;Jan;Jane;Janna;Jason;Jimmy;Joaquim;Jonathan;Joris;Justin;Kadiatou;Kahina;Katia;Kelly;Khadidja;Kilian;Kilyan;Kim;Klara;Laëtitia;Lahna;Abdallah;Adama;Adel;Adem;Adil;Adja;Agnès;Aïssatou;Alessandro;Alfred;Ali;Josh;Jules;Julie;June;Kadiatou;Kaïs;Karim;Kenzo;Keren;Kevin;Lassana;Lauren;Laurine;Lazare;Leandre;Leane;Leo;Leonore;Lila;Lilas;Lilia;Lilie;Lino;Linoï;Lise;Loan;Loane;Loïs;Lola;Lou;Lou-Anne;Louis;Louisa;Louison;Louka;Lucia;Lya;Lyana;Maceo;Mae;Maëlys;Maïa;Mamoudou;Marc;Marco;Marcus;Marguerite;Maria;Marie-Ange;Marion;Marius;Marlon;Martin;Mathieu;Mathilda;Mathilde;Matilde;Matys;Mayssa;Melissa;Melodie;Meryam;Mickael;Mickaël;Mila;Milena;Mohamed;Mohamed-Amine;Mohammed;Mouhamed;Moustapha;Nabil;Nada;Nael;Naël;Naïa;Naïl;Naïm;Naïma;Nathan;Nesrine;Neyla;Nicolas;Nikola;Nine;Noe;Noelie;Noor;Nourane;Oceane;Olga;Olympe;Oren;Oriane;Paula;Philippine;Pia;Rafael;Rokia;Roman;Etienne;Eugène;Eugenie;Eva;Fantine;Fleur;Florent;Franck;François;Gabin;Gianni;Gustave;Hanae;Hannah;Hawa;Helena;Henri;Ilian;Ilies;Ilona;Imène;Ines;Inès;Ismaël;Ivan;James;Jeanne;Jenna;Jerôme;Jibril;Joël;Johanna;Joris;Josue;Juliette;Kaïs;Karim;Kelvin;Kenza;Lana;Lena;Lenny;Leonore;Liana;Lily;Lino;Lou;Luca;Lucas;Luce;Lucie;Lucile;Lucy;Ludivine;Ludovic;Lya;Madeleine;Mael;Maëlis;Mahault;Maïlys;Malak;Malick;Manel;Margo;Marilou;Marion;Marvin;Marylou;Mathieu;Mathilde;Max;Maxence;Maximilien;Melchior;Melvin;Mickael;Milan;Mohamed;Myriam;Nadia;Naëlle;Naomi;Nathalie;Naya;Neil;Neyla;Noah;Noam;Noelie;Noha;Nora;Ousmane;Paul;Perrine;Philippine;Ranya;Rayane;Rebecca;Rebecca;Isaac;Isaure;Ismael;Issa;Jack;Jaden;Joachim;Elliot;Elliott;Elodie;Eloi;Elyes;Emile;Emilia;Emilie;Emmanuelle;Esteban;Estelle;Ferdinand;Filip;Floriane;Gaëlle;Gaetan;Gaïa;Gaspard;Gauthier;Hadrien;Hannah;Hedi;Helène;Hortense;Idris;Issa;Jawad;Jean-Baptiste;Joan;Joris;Josh;Julia;Kaïna;Kayliah;Kays;Kenzy;Killian;Lana;Laura;Lazare;Leelou;Leo;Leo-Paul;Linoï;Lison;Mahault;Maryam;Mathys;Matt;Maureen;Maya;Mayeul;Mayssa;Meïssa;Melodie;Meriem;Mia;Mila;Milla;Mina;Nada;Naïm;Zakary;Adama;Abdoul;Abel;Aby;Achraf;Adame;Aden;Aïcha;Aïdan;Alexander;Alexandra;Alice;Alima;Alix;Aliya;Aloïs;Aly;Alya;Amaury;Amelie;Amin;Amina;Aminata;Amine;Amir;Anae;Angela;Angelo;Anis;Anita;Justine;Lyna;Albane;Mélissa;Emmy;Livia;Alia;Emna;Isaure;Mahaut;Ana;Bianca;Dina;Aline;Asma;Lilou;Valentina;Louison;Léonore;Andréa;Astrid;Flora;Kenza;Eugénie;Evy;Angèle;Ania;Joy;Judith;Ayline;Halima;Marguerite;Aria;Axelle;Fanny;Rania;Tara;Zahra;Aïssata;Anissa;Fleur;Léopoldine;Lydia;Naomie;Neïla;Anne;Hafsa;Mayssa;Solveig;Dahlia;Emily;Melina;Rebecca;Wendy;Adélie;Eliana;Imany;Ludivine;Maïlys;Nadine;Sabrina;Solène;Yaëlle;Adama;Ashley;Charlène;Dalia;Domitille;Hermine;Patricia;Sidonie;Yaël;Ayah;Christine;Clélia;Esmée;Félicie;Gaëlle;Liza;Lyana;Melody;Oumou;Priscille;Ramata;Rokia;Aleksandra;Anaelle;Athénaïs;Ayana;Bertille;Calie;Candice;Cléophée;Fatim;Greta;Hania;Johanna;Keren;Lea;Leya;Angelique;Anis;Anna;Anton;Anya;Aristide;Armand;Arsène;Arthur;Bianca;Camelia;Camilia;Candice;Celestine;Charles;Charly;Christian;Clarisse;Clotilde;Coumba;Dahlia;Daniela;Denis;Diane;Djibril;Domitille;Dorian;Elea;Elian;Elias;Elio;Elisa;Elizabeth;Elliott;Ema;Emile;Emilie;Emy;Eric;Eugène;Eva;Fanta;Fantine;Fatim;Felicie;Gaspard;Gauthier;Guillaume;Hadrien;Hanae;Hannah;Harry;Heloïse;Henry;Hippolyte;Ilhan;Ilyan;Imène;Julie;Khalil;Lara;Laure;Lazare;Lea;Leana;Lena;Lena;Leonor;Liana;Lilou;Liora;Lisa;Lise;Lison;Lola;Lou-Anne;Loup;Lucas;Lukas;Lya;Lyna;Maceo;Madeleine;Mae;Maelys;Maeva;Maëva;Magdalena;Mahdi;Malo;Mamadou;Marguerite;Mariama;Mariame;Marie;Marion;Marjane;Marvin;Marwa;Adame;Ronan;Rosalie;Rose;Roxane;Sacha;Sadio;Safa;Salome;Samba;Samson;Sandro;Sara;Shayan;Shayna;Shelly;Sienna;Sihem;Siloe;Simeon;Sonia;Soumaya;Stefan;Swann;Tamara;Tancrède;Tara;Terence;Tessa;Thalia;Thea;Theodore;Tiago;Tim;Timeo;Timothe;Titouan;Tom;Tomas;Viktor;Wendy;Yaël;Yamina;Yani;Yann;Yannick;Yassine;Yoan;Yohan;Youssef;Zahra;Abdallah;Abigaël;Adama;Adib;Akram;Albane;Albert;Alessia;Alexandre;Aline;Alistair;Alix;Alma;Alphonse;Anas;Anissa;Arthur;Assa;Aurelie;Aya;Ayem;Aylin;Aymane;Bafode;Balthazar;Baudouin;Baya;Berenice;Bilal;Bintou;Blaise;Cameron;Caroline;Castille;Celestine;Celian;Celine;Charlie;Charlotte;Chayma;Cheick-Oumar;Cheikh;Chloe;Christopher;Clara;Clea;Cleo;Cloe;Clovis;Coline;Robinson;Rosa;Rose;Roy;Sabrina;Salimata;Samia;Selma;Shaï;Shanon;Shawn;Simon;Solal;Solène;Sophia;Steven;Talia;Theodore;Tim;Timothee;Tiphaine;Titouan;Toscane;Vianney;Victoire;Victor;Vladimir;Wassim;Yann;Yousra;Aaron;Abel;Aboubacar;Ada;Adam;Adame;Adelaïde;Adrian;Adriana;Ahmad;Aïda;Akram;Alex;Alexander;Alienor;Aliou;Alix;Aliya;Alizee;Alycia;Amalia;Amara;Aminata;Anae;Andrea;Andreas;Ange;Angel;Angelo;Anne;Anthony;Ariane;Arie;Ariel;Arielle;Aron;Arwen;Assa;Aurèle;Auriane;Awa;Aymen;Baptiste;Brune;Carl;Carmen;Catherine;Cerise;Chiara;Chris;Christopher;Colin;Coline;Côme;Corentin;Cyril;Damian;Dan;Dany;Daphnee;Divine;Dounia;Eden;El;Eliott;Elisa;Elisabeth;Elliot;Elodie;Eloïse;Annaëlle;Antonin;Antony;Apolline;Ari;Arnaud;Asma;Assia;Astrid;Athenaïs;Augustin;Aurelia;Aurelien;Ava;Aylan;Ayman;Yaya;Younes;Youssouf;Zacharie;Abdallah;Abdoulaye;Adem;Adil;Adriana;Agnès;Alexander;Alexandra;Alyssa;Amelie;Anae;Anaëlle;Anatole;Andre;Andrea;Angelina;Annabelle;Anne;Anya;Appoline;Aubin;Audrey;Aurelia;Auriane;Axelle;Aya;Aymen;Ayoub;Bahia;Basile;Bastien;Binta;Bintou;Boubou;Brahim;Candice;Celian;Celine;Cesar;Chaï;Charles;Cheick;Christelle;Christine;Claire;Clara;Clement;Clothilde;Côme;Dana;Daria;Diane;Djeneba;Dora;Dylan;Edouard;Elena;Elisa;Elise;Elliott;Eloane;Elona;Elsa;Emilie;Ernest;Erwann;Etienne;Eve;Fabien;Fabio;Fiona;Flore;Florian;Gabriella;Garance;Gaston;Gauthier;Grace;Gregoire;Gregory;Lilas;Margo;Mariem;Marley;Marylou;May;Rafaela;Soukaïna;Vivienne;Yakine;Bryan;Célian;Christ;Eddy;Emir;Gael;Jassim;Jessim;Jun;Aaron;Abderrahmane;Aboubakar;Abraham;Achille;Ada;Adelaïde;Adrian;Aïda;Aïssata;Aksel;Aksil;Alessio;Alex;Alexis;Allan;Alycia;Amandine;Ambre;Ambroise;Amira;Amy;Ana;Anaïs;Ange;Angel;Anselme;Anthony;Antoine;Antonio;Arie;Ariel;Armand;Aron;Arsène;Ashley;Assya;Aubin;Audrey;Auguste;Aurèle;Aurore;Avi;Awa;Axel;Baptiste;Basile;Bastien;Bilel;Blanche;Bryan;Calixte;Calvin;Camelia;Candice;Carla;Carmen;Cassandre;Cesar;Charlène;Charles;Cheick;Claire;Clarisse;Clelia;Colette;Corentin;Danny;Danyl;Daphnee;Dario;Delphine;Dorian;Dylan;Dyna;El;Elie;Elina;Elise;Elly;Eloane;Adem;Agathe;Agnès;Aïcha;Albert;Alessandro;Allan;Alone;Aly;Amin;Aminata;Amine;Anaelle;Anaïs;Anatole;Anouk;Anthony;Anton;Antonin;Apolline;Assa;Astrid;Audrey;Aurore;Ayman;Baya;Benjamin;Berenice;Blandine;Boubacar;Brieuc;Bruno;Calixte;Camelia;Capucine;Carla;Caroline;Cassandra;Cecile;Celia;Chahine;Chaïma;Charles;Christian;Christine;Christophe;Christopher;Claire;Clarence;Clemence;Colin;Constantin;Corentin;Curtis;Cyrine;Damien;Dana;Daphnee;Diane;Diego;Dina;Divine;Elea;Elena;Elie;Eliot;Elyas;Emir;Emmie;Eric;Estelle;Evann;Fanta;Fatim;Fatimata;Fatoumata;Fiona;Gabin;Gabriel;Georges;Giulia;Goundo;Gustave;Haby;Halima;Hana;Hannah;Haron;Helena;Heloïse;Ibrahim;Ilyan;Jeremy;Jerôme;Jibril;Jihane;Joey;Joseph;Josue;Julia;Constantin;Coralie;Coumba;Cyril;Cyrus;Dahlia;Dan;Daniel;Daouda;David;Denis;Dimitri;Djeneba;Edouard;Edward;Elea;Eleanor;Elias;Elijah;Eline;Elisa;Elisabeth;Elvire;Elyas;Ema;Emie;Emil;Emir;Emmie;Enguerrand;Ethel;Eugenie;Fadi;Farah;Farès;Fatou;Fatoumata;Faustine;Felicien;François;Gabriela;Guilhem;Gustave;Haby;Hadrien;Haroun;Hawa;Helie;Henri;Hind;Hippolyte;Houda;Hugo;Idir;Idrissa;Ilan;Ilona;Imran;Ishaq;Isra;Iwan;Izia;Jack;Jacob;Jad;Janna;Jason;Jassem;Jessica;Jim;Joan;Johan;Johann;Joseph;Juan;Jules;Kamil;Kenzo;Kiara;Killian;Lancelot;Lassana;Leïna;Lena;Leo;Leonore;Leyna;Lia;Lilas;Lilian;Lily-Rose;Linda;Lino;Liora;Lisa;Loan;Loïc;Loris;Lorraine;Lubin;Elyes;Emeline;Emir;Enzo;Ethel;Eugenie;Eya;Eytan;Fares;Fatima;Ferdinand;Flavie;Flavio;Fleur;Frederic;Gabin;Gabriella;Gabrielle;Giovanni;Giulia;Hanna;Hayden;Hedi;Iban;Ibrahima;Idris;Ilian;Ilyana;Imane;Inaya;Ines;Ivan;Jack;Jana;Jasmine;Jayson;Jean;Jeremie;Joanne;June;Kamil;Karim;Kevin;Killian;Kyllian;Ladji;Leandre;Leïla;Leo;Leon;Lilas;Lilian;Lilly;Lily-Rose;Liv;Loane;Lohan;Lou;Louann;Lou-Ann;Louis;Louison;Lucia;Ludovic;Luna;Maceo;Maëlle;Mahamadou;Mai;Maïa;Malek;Manel;Marceau;Margot;Maria;Marianne;Marina;Marouane;Martin;Maryam;Mateja;Mateo;Mateo;Mathias;Mathurin;Matisse;Matteo;Maximilien;Maxine;Melina;Melissa;Melody;Melvil;Menahem;Milla;Mona;Mya;Nadir;Naël;Naëlle;Guilhem;Hajar;Hannah;Harold;Hasna;Helèna;Hermine;Hippolyte;Ilian;Leopoldine;Lily;Lisa;Lise;Louka;Lyna;Mady;Mahe;Maïmouna;Maïssa;Naomi;Naomie;Natacha;Nathan;Nathanaël;Noam;Noe;Omar;Ornella;Oscar;Paola;Pauline;Philomène;Pierre;Pierre-Louis;Rafaël;Rania;Raphaëlle;Richard;Rita;Robinson;Rokia;Roman;Romy;Sadio;Saïd;Salma;Samuel;Sana;Sarah;Sasha;Shirel;Sibylle;Simeon;Sirine;Soraya;Stacy;Tessa;Thalia;Thibaud;Thibault;Timothee;Tobias;Toscane;Vadim;Valentine;Vianney;Victoire;Vincent;Violette;Wael;Wesley;Wiktoria;Yacine;Yanis;Yannick;Yasmine;Youcef;Yvan;Zack;Zakaria;Aaron;Abdallah;Abigaël;BenoÃ®t;Jeanne;Eva;Lucie;Lou;Valentine;Iris;Léonie;Charlie;Margot;Ava;Agathe;Suzanne;Alma;Lila;Sara;Maëlys;Elodie;Eloi;Elsa;Emile;Emily;Emma;Emna;Enola;Enzo;Eric;Erwan;Ethan;Eve;Eve;Ewan;Ezio;Fabio;Fady;Fatima;Federico;Feriel;Florent;Fode;Gabriel;Gabriella;Gabrielle;Gaël;Gaspar;Gaspard;Gauthier;Georges;Giovanni;Giulio;Gregoire;Hayden;Hector;Hedi;Helena;Heloïse;Hortense;Ibrahima;Ilyan;Ilyes;Imen;Imrane;Ines;Isabelle;Jayden;Jean;Jeanne;Jehanne;Joël;Joey;John;Jordan;Joris;Josh;Jude;Junior;Justine;Kim;Klara;Lauren;Leana;Leandre;Leïla;Lenny;Leonard;Leonardo;Leopold;Levana;Levi;Levi;Lilie;Line;Liya;Liza;Lola;Lou;Louison;Loup;Lucas;Luce;Lucia;Lucien;Lukas;Mae;Maël;Maeva;Mahault;Maïa;Maïna;Mara;Mariam;Mariame;Marie;Mariem;Marin;Marina;Marjane;Julien;Juliette;Justine;Kadiatou;Kahina;Karamba;Karl;Kilian;Lassana;Lena;Leonie;Liam;Lila;Lilou;Liora;Loane;Lou-Anne;Louison;Lucile;Lucille;Lydia;Maelys;Maksim;Marine;Marwane;Melanie;Melissa;Mia;Mohamed-Amine;Naëlle;Nahel;Nikola;Nil;Nino;Noah;Olympe;Paolo;Perla;Philemon;Rafael;Rayan;Romain;Romeo;Sacha;Salimata;Salome;Samir;Sasha;Serena;Sidonie;Sohan;Soren;Swann;Tasnim;Tess;Tomas;Vadim;Victoire;Viktor;William;Yasmine;Yona;Youssef;Kenzi;Kiara;Kyllian;Lahna;Laure;Lea;Leyna;Lily;Linda;Lison;Liza;Luan;Lucia;Mael;Maëlle;Maïmouna;Malo;Marina;Marko;Marouane;Marvin;Marwan;Marylou;Matilda;Matteo;Matteo;Maxim;Michael;Mila;Moïra;Myriam;Nael;Naïm;Nell;Neyla;Nils;Norah;Ludivine;Luis;Luna;Lyna;Maëlie;Maëlyne;Maelys;Maïssane;Maïwenn;Malo;Mamadou;Mamoudou;Manel;Marceau;Marcel;Marcus;Margot;Marie-Lou;Marine;Marlon;Matheo;Mathias;Matis;Maximilian;May;Melanie;Melia;Melina;Meline;Melissa;Meriem;Mohamed;Mohamed-Ali;Mohammed;Monica;Morgan;Nadir;Naïm;Nathalie;Nelia;Nelya;Nicole;Nils;Ninon;Niouma;Nizar;Noah;Noham;Nora;Ombeline;Oscar;Pacôme;Patrick;Paul;Perla;Philemon;Philippine;Philomène;Quentin;Quitterie;Rafael;Rahma;Ramata;Rebecca;Ruben;Ryad;Ryan;Rym;Sadio;Sanaa;Sandro;Sekou;Selyan;Shaï;Shaïna;Sohan;Soumaya;Stanislas;Steven;Tali;Talia;Talya;Teddy;Thelma;Tiffany;Timothe;Valentine;Vanessa;Vianney;Victor;Viktor;Wael;Xavier;Yacine;Yara;Yasser;Yoan;Yossef;Younès;Youness;Nathalie;Nelson;Nicolas;Nolan;Oceane;Ornella;Ousmane;Paco;Robin;Romane;Romy;Sam;Sasha;Sean;Sekou;Sekou;Selyan;Shaï;Shirel;Solenn;Souleymane;Stella;Steven;Syrine;Taïs;Tancrède;Tao;Tessa;Theodore;Tiffany;Tina;Ugo;Vanessa;Vincent;Yacine;Yoan;Younes;Youssef;Youssouf;Zakarya;Zelie;Lilas;Lina;Liya;Loan;Louise;Luca;Lucas;Lyam;Lyes;Lylia;Lyna;Maceo;Madeleine;Maëly;Maïa;Maïly;Maïlys;Maïssane;Malak;Mamadou;Marceau;Marie;Marin;Maryam;Mathilde;Matias;Max;Mayeul;Meïssa;Melchior;Melina;Melina;Melinda;Meline;Melissa;Melvil;Merlin;Mickaël;Milhan;Milo;Mina;Moussa;Nadine;Nathan;Neïla;Nicole;Nikita;Nine;Nizar;Noemie;Nora;Oceane;Ombeline;Pacôme;Paris;Philippe;Philomène;Preston;Rebecca;Ines;Lana;Sasha;Lily;Elena;Violette;Joakim;Abdou;Yazid;Richard;Emil;Swan;Bruno;Joris;Muhammed;Baudouin;Matias;Haron;Flavien;Lohan;Joud;Ron;Téo;Eytan;Roch;Kiyan;Arthus;Sixte;Leny;Alpha;Raphaël;Victor;Augustin;Martin;Hugo;Léonard;Eliott;Ibrahim;Félix;Rafael;César;Hamza;Emmanuel;Luca;Malo;Léopold;Marin;Émile;Issa;Adem;Timéo;Youssouf;Gaston;Mohammed;Thibault;Noa;Iyad;Sam;Jacob;Mateo;Tao;Zadig;Alessandro;Ivan;Alassane;Tidiane;Selim;Hélio;Mickaël;Mory;Tahar;Louison;Adriano;Ely;Aurel;Fodé;Nathanael;Fabien;Rayan;Simon;Enzo;Valentin;Alexis;Gabin;Noam;Antonin;Solal;Amaury;Noham;Tristan;Idriss;Jad;Omar;Jacques;Yassine;Owen;Balthazar;Emile;Corentin;Ismaïl;Martha;Martin;Marwa;Mateo;Matthias;Maximilien;Mayline;Maylis;Mehdi;Melodie;Melvil;Melvin;Meryem;Michaël;Mikaïl;Mila;Nadia;Nawfel;Nelia;Nell;Nicolas;Nil;Noemie;Nolan;Nolhan;Oliver;Olivia;Ornella;Oskar;Oumar;Owen;Philippe;Pia;Prince;Roxane;Salimata;Sam;Samuel;Sana;Saul;Sebastian;Sebastien;Shaïma;Shirel;Silas;Sixtine;Sofia;Solal;Soline;Sophia;Sophie;Soren;Souleymane;Suzie;Swann;Sylvain;Sylvie;Tao;Thaïs;Thalia;Theodore;Theophile;Theotime;Tiago;Timothee;Valentin;Victoria;Yanis;Yannis;Yohan;Zakary;Zelie;Zineb;Zoe;Eve;Sophia;Maria;Nora;Élise;Hortense;Blanche;Lena;Nélia;Mya;Ana;Maïa;Clarisse;Adélaïde;Fatima;Clémentine;Aliénor;Louisa;Bintou;Malak;Alya;Dina;Solène;Célestine;Elya;Anaëlle;Nour;Oscar;Oumar;Oumou;Ousmane;Quentin;Quitterie;Rami;Raphael;Rayane;Riad;Ryan;Sara;Sekou;Selyan;Shaï;Shanna;Sidy;Soan;Soumaya;Teo;Tiana;Tidiane;Tom;Valentine;Virgile;Vladimir;Wael;Yassine;Ysee;Leonie;Lili;Lilly;Lilou;Lily;Lilya;Lily-Rose;Lisa;Lison;Loïs;Lou;Lou-Ann;Louison;Luca;Lucille;Luka;Lyam;Lylia;Maëlie;Maëlyne;Maïssa;Manelle;Mariama;Marianne;Marie;Marin;Marvin;Marwan;Maryam;Matheo;Mathias;Matis;Mattia;Max;Maxence;Maxens;Maxim;Maximilien;May;Mayar;Melanie;Melina;Melvil;Miguel;Mira;Morgane;Mya;Nadir;Nahel;Naïla;Naomie;Nayel;Neïla;Nell;Nelly;Noah;Noam;Oliver;Oumar;Patrick;Philemon;Philomène;Prosper;Prune;Quentin;Rachel;Rania;Ranya;Raoul;Rayane;Yousra;Zachary;Zayneb;Ziad;Eloïse;Rébecca;Noah;Caroline;Imene;Nahia;Alyah;Sylia;Sokhna;Eleanor;Delphine;Serena;Rosa;Juliana;Ela;Fatima-Zahra;Taïna;Sherine;Aïna;Adam;Paul;Mohamed;Thomas;Samuel;Ethan;Liam;Nathan;Axel;Simon;Rayan;Yanis;Timothée;Naël;Ismaël;Maël;William;Félix;Edgar;Auguste;Ruben;Evan;Amine;Achille;Ahmed;Joachim;Marcel;Naïm;Léopold;Julien;Sami;Thibault;Mathéo;Imran;Marc;Sofiane;James;Yacine;Mathys;Julian;Sasha;Hippolyte;Ernest;Esteban;Constantin;Ilyas;Haroun;Timothé;Émile;Rayane;Olivier;Nils;Ousmane;Loïc;Aymen;Pablo;Amadou;Jacques;Bilal;Ismaïl;Nahil;Lorenzo;Gaël;Zacharie;Johan;Jad;Aboubacar;Ayden;Mouhamed;Lior;Marcus;Camil;Adrian;Lino;Gauthier;Naïl;Oumar;Rodrigue;Romane;Romy;Rosalie;Ruben;Sam;Samuel;Samy;Sandra;Sandro;Selma;Sephora;Shana;Siloe;Simon;Sirine;Solal;Sophia;Sophie;Souleymane;Stella;Tania;Tasnime;Thelma;Thibault;Thomas;Ulysse;Vanessa;Victor;Viviane;Wissam;Xavier;Yael;Yann;Yannick;Yannis;Yara;Yassin;Youri;Yse;Zachary;Zadig;Zakaria;Zoë;BenoÃ®t;Aaliyah;Abdoul;Adam;Adama;Adel;Adil;Adriana;Aïssatou;Alassane;Albane;Alexander;Alima;Alistair;Alyssa;Amalia;Amaury;Ambre;Ambrine;Ambroise;Amelie;Amy;Ana;Anaëlle;Angelina;Anissa;Anya;Archibald;Ariel;Arielle;Armand;Arnaud;Arthur;Auguste;Augustine;Axelle;Aymen;Aymeric;Bakary;Binta;Boubou;Bouchra;Brune;Cameron;Carmen;Cassandre;Cassiopee;Celestine;Cesar;Charlie;Charline;Cheick;Chloe;Chris;Clelia;Cloe;Aboubacar;Rafaël;Raphael;Aymen;Gaël;Mahé;Eliot;Leo;Florian;Vincent;Yohan;Olivier;Waël;Andy;Calixte;Damien;Dany;Ewen;Gaétan;Lazare;Mattéo;Yassin;Yossef;Aksil;Aloïs;Armel;Jérémy;Luc;Melvil;Yacouba;Elouan;Levi;Loan;Makan;Malone;Morgan;Mylan;Yannis;Yoan;Adrian;Daoud;Eloi;Guilhem;Hedi;Kenzi;Leon;Mouhamadou;Muhammad;Niels;Nohé;Ahmad;Anass;Cheikh;Darius;Élio;Ennio;Idir;Jonah;Joud;Manil;Marcello;Michaël;Nayel;Philémon;Rayen;Taym;Aïssa;Aris;Edward;Fabien;Harold;John;Juba;Kilian;Lukas;Mady;Michael;Moïse;Oskar;Seydina;Swan;Wesley;Sarah;Sofia;Joséphine;Margaux;Valentine;Alix;Ava;Marie;Suzanne;Clara;Pauline;Alicia;Laura;Sophia;Maya;Capucine;Noémie;Elise;Lilya;Cléo;Cassandre;Anastasia;June;Nayla;Eugénie;Fleur;Léana;Maeva;Rita;Alexia;Aaliyah;Yara;Grace;Louna;Ysé;Jennah;Johanna;Antonia;Tina;Léane;Neïla;Haya;Salimata;Maxime;Eline;Liora;Solange;Candice;Anne;Ernestine;Ora;Helena;Ritej;Lylia;Joyce;Sacha;Catherine;Melina;Manelle;Alima;Cléa;Ève;Ranya;Norah;Eulalie;Tania;Jessica;Hiba;Joana;Lilas;Simone;Samia;Eléna;Marnie;Isadora;Solveig;Lilly;Adriana;Leïa;Dalya;Oriane;Noura;Keyla;Erin;Alice;Anna;Anaïs;Sofia;Nina;Joséphine;Zoé;Victoire;Mila;Mathilde;Clémence;Charlie;Alix;Aya;Elisa;Pauline;Soukaina;Madeleine;Elise;Eléonore;Giulia;Ella;Sophie;Noa;Maryam;Raphaëlle;Fatima;Luna;Livia;Rachel;Ana;Thelma;Dina;Lilou;Brune;Robin;Rodrigue;Romy;Rosa;Saad;Sabrina;Sacha;Saïd;Salim;Salma;Sami;Samia;Samuel;Samy;Santiago;Sasha;Sharon;Sherine;Shirine;Sofiane;Sohane;Solène;Soren;Stephane;Steven;Syrine;Tao;Tasnim;Theo;Theophane;Thibaut;Tidiane;Tiffany;Tiphaine;Valentina;Valentine;Vianney;Victor;Viktoria;Wael;Waël;Yara;Yassin;Yoann;Younes;Yse;Ysee;Zakaria;Zakariya;Abdourahmane;Adam;Adama;Adel;Adil;Adriana;Agathe;Agnès;Ahmed;Aïssatou;Alan;Alba;Alban;Albertine;Alicia;Alissa;Aliyah;Alpha;Alyssa;Amalia;Amelia;Anass;Anastasia;Anatole;Andre;Andrea;Andrea;Andrea;Ania;Anton;Artemis;Artus;Aydan;Karl;Katia;Kevin;Khalil;Kylian;Lassana;Laura;Laure;Leana;Leandre;Lena;Leo;Leonore;Liam;Lila;Lina;Lison;Loan;Mayeul;Albert;Ayman;Joaquim;Carl;Damien;Sébastien;Mady;Bakary;Matéo;Siméon;Aly;Ben;Maximilian;Gianni;Maher;Steven;Alfred;Ewen;Andrew;Ronan;Ilies;Anaël;Arié;Paulin;Thierno;Kimi;Lévi;Aubin;Kilian;Kays;Fallou;Emir;Aharon;Taha;Iliane;Mattia;Giulio;Justin;Gautier;Kader;Khaled;Malone;Francesco;Frédéric;Zayd;Lirone;Islem;Kenzi;Tim;Ismaël;Julien;Rémi;Aaron;Théo;Youssef;Théodore;Ali;Ruben;Ilyes;Eden;Moussa;Marcel;James;Kylian;Joachim;Djibril;Hippolyte;Haroun;Aksel;Edouard;Tiago;Mouhamed;Ilyan;Leonardo;Mathys;Pablo;Gauthier;Loïc;Gary;Fares;Moustapha;Eline;Zoé;Margaux;Yasmine;Olivia;Anaïs;Clémence;Victoire;Julia;Alix;Mia;Lola;Romy;Fatoumata;Anouk;Aminata;Ella;Mariam;Clovis;Coumba;Cyprien;Cyrille;Daphne;Delphine;Diana;Dimitri;Eden;Eglantine;Elena;Eleonore;Eleonore;Eli;Eline;Elise;Elissa;Elliot;Eloïse;Elora;Ely;Ema;Emeline;Emile;Emilien;Emily;Enguerrand;Enzo;Erin;Eva;Eva;Evan;Eya;Fabien;Fanny;Fares;Fatou;Felix;Flora;Foucauld;Gauthier;Hafsa;Haroun;Harry;Haya;Helie;Hortense;Idris;Idrissa;Ilona;Inès;Iris;Ismaïl;Isra;Issam;Iyed;James;Jana;Jimmy;John;Jonas;Jordan;Joyce;Judith;Karim;Kenny;Kenzo;Kenzy;Keziah;Khadija;Kim;Laetitia;Lana;Lea;Leo;Leon;NoÃ¢m;Abigail;Abraham;Achille;Adam;Adriana;Adrien;Aïda;Aissatou;Alan;Alassane;Alessio;Alexandra;Aline;Alissa;Aloïs;Alone;Alya;Amanda;Amandine;Amel;Amine;Anaïs;Anas;Assia;Ella;Roxane;Myriam;Ines;Éléonore;Julie;Aminata;Faustine;Alya;Blanche;Jasmine;Nora;Gabriella;Paloma;Ana;Claire;Myriam;Luna;Assia;Selma;Eloïse;Albane;Lyna;Sirine;Pia;Noa;Alexandra;Manel;Jasmine;Claire;Rosalie;Irène;Raphaëlle;Hana;Elisabeth;Léonore;Aurore;Hannah;Talia;Amy;Asma;Syrine;Sibylle;Leïla;Maylis;Angelina;Eléa;Dounia;Domitille;Élisa;Aïssatou;Lya;Halima;Lahna;Ilyana;Iliana;Maxine;Nelya;Laure;Ysée;Janna;Andrea;Eliza;Astrid;Isis;Sonia;Meryem;Emily;Louane;Félicie;Aïssata;Lucy;Énora;Assya;Shirel;Colombe;Élina;Fatma;Hanaé;Paola;Laetitia;Aline;Selena;Yaël;Suzie;Héléna;Thelma;Cindy;Tara;Djena;Rokia;Anaé;Zohra;Sabrina;Abigail;Perla;Rahma;Liza;Athéna;Marion;Diana;Cassandre;Hana;Camélia;Rebecca;Sixtine;Amira;Enora;Imane;Emy;Axelle;Naomie;Eléa;Carmen;Maïmouna;Sonia;Aaliyah;Anastasia;Olympe;Théa;Leïla;Astrid;Joyce;Laure;Cléo;Maud;Elissa;Hanaé;Linda;Candice;Melissa;Tali;Elly;Gaïa;Rahma;Dounia;Assa;Lital;Gabriella;Marilou;June;Line;Melina;Lylia;Amalia;Lucy;Laetitia;Catherine;Séréna;Lucia;Aude;Philomène;Ysé;Simone;Kimberly;Hind;Rosa;Neyla;Eliane;Fatimata;Tesnim;Johanne;Carolina;Maé;Ilana;Nelia;Haby;Seynabou;Mai;Kawtar;Odélia;Nesrine;Delia;Divine;Andrea;Abigaël;Leonor;Ophélie;Aïsha;Lilwenn;Auriane;Kate;Olga;Yona;Noha;Rébecca;Anne;Mélinda;Erin;Mayane;Rana;Charlize;Abigail;Taïna;Noélie;Paul;Victor;Mohamed;Maxime;Logan;Loris;Lou;Loubna;Lukas;Luna;Maël;Maëlie;Maïlys;Malick;Mariam;Marilou;Marine;Marius;Marthe;Mathias;Mathieu;Matias;Matthieu;Maud;Maximilien;Melissa;Melissa;Michaël;Miguel;Milo;Mohammed;Morgan;Nadia;Nadine;Naomie;Natalia;Nelly;Nelson;Nikola;Nine;Nizar;Noa;Noemie;Norah;Oceane;Olivia;Ophelie;Oriane;Ousmane;Oussama;Pascal;Pierre;Priscille;Quentin;Rachel;Rahma;Rania;Raphaël;Rayane;Roxanne;Ruben;Ryad;Ryan;Sabrina;Safa;Salma;Samir;Sara;Scott;Sharon;Skander;Sofiane;Solenn;Steeve;Stella;Swann;Sylvia;Talia;Tancrède;Thelma;Theo;Ugo;Valentina;Valentine;Vanessa;Victoire;Victor;Viktor;Virgil;Walid;Wandrille;Warren;Yaël;Yassine;Yoann;Youcef;Yuna;Abel;Aboubacar;Adama;Adel;Adèle;Adrian;Alex;Céleste;Stella;Ambre;Inaya;Liv;Zélie;Hanna;Kenza;Mélina;Paloma;Faustine;Tess;Justine;Judith;Soline;Marion;Salma;Jana;Brune;Aliya;Bianca;Éléonore;Émilie;Khadija;Hawa;Andréa;Ariane;Philippine;Mariama;Amira;Naïla;Sixtine;Mayssa;Naya;Marguerite;Marwa;Farah;Flore;Mona;Agnès;Maud;Billie;Elia;Nell;Coumba;Enora;Anissa;Marianne;Axelle;Dalia;Safa;Khadidja;Tal;Nesrine;Angela;Amicie;Amel;Camila;Fatimata;Gabriella;Lia;Sienna;Ludivine;Alycia;Soraya;Zineb;Lucia;Viviane;Tiphaine;Alina;Amalia;Gabriela;Bertille;Maram;Izia;Yona;Naëlle;Elissa;Elvire;Leia;Noélie;Aimée;Elyssa;Nadia;Nelia;Lauren;Hind;Abigaël;Chahinez;Layanah;Shaïna;Méllina;Nicole;Dune;Olga;Kawthar;Henriette;Adélie;Naila;Adeline;Andrea;Ange;Angelina;Angelina;Angeline;Annaëlle;Ari;Arie;Aristide;Assa;Auguste;Aurel;Aurelie;Axel;Aziz;Blandine;Calixte;Carl;Cassiopee;Celestine;Celia;Charlie;Charlize;Charlotte;Charly;Cheick;Chloe;Christine;Clemence;Clothilde;Colombe;Coumba;Cyrine;Dalla;Dan;Daphnee;Darren;Diana;Djibril;Driss;Eden;Elia;Elie;Elior;Eliot;Elizabeth;Ellie;Eloi;Elouan;Elya;Elyes;Emilie;Enguerrand;Esther;Eva;Eya;Ezio;Fanny;Fares;Farès;Fatim;Fatima;Flavie;Gabin;Gaël;Gaston;Gautier;Georgia;Giulia;Grace;GrÃ¢ce;Guilhem;Gwenaëlle;Halima;Haroun;Helena;Heloïse;Hiba;Hugo;Idrissa;Ilian;Ilyana;Ilyas;Imad;Irène;Iris;James;Jason;Jayden;Jenna;Jordan;Joris;Juliana;Justin;Katia;Kayna;Keira;Khadija;Kiara;Kim;Sandra;Éléa;Zelda;Martha;Kayla;Baya;Charlène;Daniella;Eya;Mayline;Alizée;Imen;Chaïma;Ayah;Milica;Sydney;Tasnim;Olympia;Leila;Lehna;Christina;Isabella;Leyla;Myla;Olive;Rayhana;Aby;Cyrielle;Swann;Israa;Sharon;Maéva;Gaëlle;Louis;Jules;Clément;Valentin;Pierre;David;Benjamin;Eliott;Tristan;Lucien;Marceau;Mehdi;Ilyes;Younes;Solal;Nael;Kaïs;Eden;Ayoub;Zakaria;Milan;Tiago;Mathias;Elie;Amaury;Stanislas;Anis;Luka;Roman;Abdoulaye;Yann;Nassim;Nathanaël;Idriss;Youssouf;Grégoire;Adel;Titouan;Ismael;Omar;Théophile;Eliot;John;Vincent;Mahé;Aksil;Etienne;Neil;Jonas;Idris;Kylian;Ilyan;François;Mendel;Eric;Lou;Zachary;Anthony;Hayden;Marlon;Matthias;Soan;Wael;Amin;Alix;Yani;Aloïs;Lucas;Jules;Thomas;Augustin;Rayan;Liam;Noah;Yanis;Adrien;Léon;Timothée;Basile;Naël;Quentin;Hector;Maël;Théodore;Léonard;Armand;Moussa;Youssef;Gustave;Andrea;Ali;Hamza;Yacine;Marceau;Henri;Nael;Mamadou;Nassim;Naïm;Alban;Constantin;Titouan;Ilyas;Sami;Esteban;Kylian;Rémi;Timothé;Bastien;Albert;Mahamadou;Léandre;Kenzo;Loïc;Ferdinand;Jaden;Amadou;Aymeric;Aymen;Haroun;Vincent;Fares;Marwan;Lazare;Moustapha;Eric;Joakim;Tony;Colin;Jordan;Jason;Iyad;Yahya;Leonardo;Nathaniel;Dan;Alessandro;Skander;Ilan;Lysandre;Paolo;Loan;Marlon;Eugène;Maxim;Yvan;Aboubakar;Jérémie;Harouna;Alassane;Tao;Nabil;Carl;Oren;Matisse;Aden;Emilien;Laurent;Aymane;Yannis;Kelyan;Karl;Mohamed-Lamine;Souleyman;Yasin;Ramy;Silas;Alexane;Ali;Alia;Allan;Amine;Anaël;Anaïs;Angelina;Anis;Apolline;Ariane;Ariel;Assia;Aude;Aurelien;Aurore;Axel;Barbara;Bettina;Blandine;Boubacar;Brice;Camelia;Carl;Carla;Cecilia;Chanel;Chloe;Christian;Clemence;Clementine;Coline;Dan;Diego;Eddy;Eleonore;Emilien;Emma;Emmanuelle;Eric;Erin;Eytan;Fabri" default_value="yes;no" custom_choice="0" tooltip="Try to recognize a word from a list of words set in the box parameters." id="7" />
                                                 <Parameter name="Confidence threshold (%)" inherits_from_parent="0" content_type="1" value="30" default_value="30" min="0" max="100" tooltip="If the confidence associated with the word recognized is below this threshold, the robot will consider that it is not recognized." id="8" />
                                                 <Parameter name="Visual expression" inherits_from_parent="0" content_type="0" value="1" default_value="1" tooltip="Use the LEDs to show feedbacks from the robot during the recognition.&#x0A;&#x0A;For example:&#x0A;- Eyes leds get blue and turn when the speech recognition is launched.&#x0A;- They get yellow when the robot hears someone talking and analyses what it heard.&#x0A;- They flash in green when the robot understood and flash in red otherwise." id="9" />
                                                 <Parameter name="Enable word spotting" inherits_from_parent="0" content_type="0" value="0" default_value="0" tooltip="If this option is not activated the robot will only understand exact expressions. If it is, he will spot the exact expressions even in the middle of a sentence.&#x0A;&#x0A;!!Warning!! This option is only available with the speech recognition module using Nuance (ie in Atom version of the robot)." id="10" />
@@ -1055,7 +1481,7 @@ class MyClass(GeneratedClass):
                                                     <BehaviorLayer name="behavior_layer1">
                                                         <BehaviorKeyframe name="keyframe1" index="1">
                                                             <Diagram>
-                                                                <Box name="Say Text" id="2" localization="8" tooltip="Say the text received on its input." x="726" y="266">
+                                                                <Box name="Say Text" id="2" localization="8" tooltip="Say the text received on its input." x="770" y="185">
                                                                     <bitmap>media/images/box/interaction/say.png</bitmap>
                                                                     <script language="4">
                                                                         <content>
@@ -1278,7 +1704,7 @@ class MyClass(GeneratedClass):
                                                                     <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Data is sent on the output when this input is stimulated." id="2" />
                                                                     <Output name="onStopped" type="3" type_size="1" nature="1" inner="0" tooltip="Data sent when asked." id="3" />
                                                                 </Box>
-                                                                <Box name="Get Data" id="4" localization="8" tooltip="Retrieves from NAOqi&apos;s shared memory the given value at the given key." x="566" y="270">
+                                                                <Box name="Get Data" id="4" localization="8" tooltip="Retrieves from NAOqi&apos;s shared memory the given value at the given key." x="600" y="218">
                                                                     <bitmap>media/images/box/sensors/STM.png</bitmap>
                                                                     <script language="4">
                                                                         <content>
@@ -1386,7 +1812,7 @@ class MyClass(GeneratedClass):
                                                 <Output name="onSuccess" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent if the clearing succeeded." id="3" />
                                                 <Output name="onFailure" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent if the clearing failed." id="4" />
                                             </Box>
-                                            <Box name="Say" id="3" localization="8" tooltip="Say some text. Note that you must open the box to enter the text." x="412" y="80">
+                                            <Box name="Say" id="3" localization="8" tooltip="Say some text. Note that you must open the box to enter the text." x="369" y="71">
                                                 <bitmap>media/images/box/interaction/say.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -1595,7 +2021,7 @@ class MyClass(GeneratedClass):
                                                 </Timeline>
                                                 <Resource name="Speech" type="Lock" timeout="0" />
                                             </Box>
-                                            <Box name="Say (1)" id="2" localization="8" tooltip="Say some text. Note that you must open the box to enter the text." x="296" y="292">
+                                            <Box name="Say (1)" id="2" localization="8" tooltip="Say some text. Note that you must open the box to enter the text." x="331" y="266">
                                                 <bitmap>media/images/box/interaction/say.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -1804,7 +2230,7 @@ class MyClass(GeneratedClass):
                                                 </Timeline>
                                                 <Resource name="Speech" type="Lock" timeout="0" />
                                             </Box>
-                                            <Box name="Learn Face" id="4" localization="8" tooltip="Teach the robot a new face to recognize. the robot&apos;s eyes will become green in case of&#x0A;success and red in case of failure.&#x0A;&#x0A;V1.1.0&#x0A;" x="727" y="25">
+                                            <Box name="Learn Face" id="4" localization="8" tooltip="Teach the robot a new face to recognize. the robot&apos;s eyes will become green in case of&#x0A;success and red in case of failure.&#x0A;&#x0A;V1.1.0&#x0A;" x="702" y="50">
                                                 <bitmap>media/images/box/interaction/learn_face.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -2248,7 +2674,7 @@ class MyClass(GeneratedClass):
                                                     </BehaviorLayer>
                                                 </Timeline>
                                             </Box>
-                                            <Box name="Get Data" id="5" localization="8" tooltip="Retrieves from NAOqi&apos;s shared memory the given value at the given key." x="590" y="64">
+                                            <Box name="Get Data" id="5" localization="8" tooltip="Retrieves from NAOqi&apos;s shared memory the given value at the given key." x="541" y="89">
                                                 <bitmap>media/images/box/sensors/STM.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -2488,7 +2914,7 @@ class MyClass(GeneratedClass):
                                                 </Timeline>
                                                 <Resource name="Speech" type="Lock" timeout="0" />
                                             </Box>
-                                            <Box name="Goto (questions)" id="7" localization="8" tooltip="Jump to the frame name set in parameters." x="962" y="197">
+                                            <Box name="Goto (questions)" id="7" localization="8" tooltip="Jump to the frame name set in parameters." x="1022" y="208">
                                                 <bitmap>media/images/box/box-timeLine.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -2780,7 +3206,7 @@ class MyClass(GeneratedClass):
                                     </BehaviorKeyframe>
                                     <BehaviorKeyframe name="tablet" index="125">
                                         <Diagram>
-                                            <Box name="Show App" id="2" localization="8" tooltip="Loads the application on the tablet, if it exists, and displays the webview.&#x0A;&#x0A;V1.0.0&#x0A;" x="395" y="60">
+                                            <Box name="Show App" id="2" localization="8" tooltip="Loads the application on the tablet, if it exists, and displays the webview.&#x0A;&#x0A;V1.0.0&#x0A;" x="312" y="74">
                                                 <bitmap>media/images/box/root.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -2840,15 +3266,8 @@ class MyClass(GeneratedClass):
                                                 <Output name="onSuccess" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished successfully." id="3" />
                                                 <Output name="onFailure" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished unsuccessfully." id="4" />
                                             </Box>
-                                            <Link inputowner="2" indexofinput="2" outputowner="0" indexofoutput="1" />
-                                        </Diagram>
-                                    </BehaviorKeyframe>
-                                </BehaviorLayer>
-                                <BehaviorLayer name="behavior_layer3">
-                                    <BehaviorKeyframe name="exploration" index="1">
-                                        <Diagram>
-                                            <Box name="Set External Anti-Collision" id="5" localization="8" tooltip="Enable or disable the collision protection on some specific part of the robot&apos;s body with external environment.&#x0A;&#x0A;For example if the protection is enabled on his left arm he will move his arm all the&#x0A;same than when it is not but avoiding his other body parts." x="99" y="68">
-                                                <bitmap>media/images/box/sensors/anti_collision.png</bitmap>
+                                            <Box name="Timer" id="5" localization="8" tooltip="Stimulate output repeatedly with the specified interval.&#x0A;Can be stopped anytime. &#x0A;Stimulating the input again restarts the timer.&#x0A;" x="397" y="224">
+                                                <bitmap>media/images/box/wait.png</bitmap>
                                                 <script language="4">
                                                     <content>
                                                         <![CDATA[class MyClass(GeneratedClass):
@@ -2856,35 +3275,95 @@ class MyClass(GeneratedClass):
         GeneratedClass.__init__(self, False)
 
     def onLoad(self):
-        self.motion = ALProxy( "ALMotion" )
+        self.timer = None
+
+    def onUnload(self):
+        self.cancelTimer()
+
+    def cancelTimer(self):
+        if self.timer:
+            self.timer.stop()
+        self.timer = None
+
+    def onTimer(self):
+        self.timerOutput()
+
+    def startTimer(self):
+        import qi
+        self.timer = qi.PeriodicTask()
+        self.timer.setCallback(self.onTimer)
+        self.timer.setUsPeriod(int(self.getParameter("Period (s)") * 1000 * 1000))
+        self.timer.start(True)
+
+    def onInput_onStart(self):
+        self.cancelTimer()
+        self.startTimer()
+
+    def onInput_onStop(self):
+        if self.timer and self.timer.isRunning():
+            self.onStopped()
+        self.onUnload()]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Start the timer using the configured period value." id="2" />
+                                                <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Stop the timer." id="3" />
+                                                <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when the box is stopped." id="4" />
+                                                <Output name="timerOutput" type="1" type_size="1" nature="2" inner="0" tooltip="Send a bang periodically." id="5" />
+                                                <Parameter name="Period (s)" inherits_from_parent="0" content_type="2" value="5" default_value="1" min="0" max="5000" tooltip="Defines the period of the timer box (in seconds).&#x0A;&#x0A;For example, if this parameter is equal to 1s, the timerOutput will be stimulated&#x0A;every second until the onStop input is stimulated." id="6" />
+                                            </Box>
+                                            <Box name="Hide Web View" id="4" localization="8" tooltip="Hides the webview (html content) on the tablet, behind a generic cover&#x0A;&#x0A;V1.0.0&#x0A;" x="641" y="156">
+                                                <bitmap>media/images/box/internet/internet.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[
+
+class MyClass(GeneratedClass):
+
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        pass
 
     def onUnload(self):
         pass
 
-    def onInput_onSet(self):
-        # is it enable or disable asked?
-        enable = (self.getParameter("Action") == "Enable")
-        # enable/disable collision protection
-        self.motion.setExternalCollisionProtectionEnabled( self.getParameter("Body part"), enable )
-        self.output() # activate output of the box]]>
+    def _getTabletService(self):
+        tabletService = None
+        try:
+            tabletService = self.session().service("ALTabletService")
+        except Exception as e:
+            self.logger.error(e)
+        return tabletService
+
+    def onInput_onStart(self):
+        # We create TabletService here in order to avoid
+        # problems with connections and disconnections of the tablet during the life of the application
+        tabletService = self._getTabletService()
+        if tabletService:
+            tabletService.hideWebview()
+        else:
+            self.logger.warning("ALTabletService not found.")
+        self.onStopped()]]>
 </content>
                                                 </script>
                                                 <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
-                                                <Input name="onSet" type="1" type_size="1" nature="1" inner="0" tooltip="The anti-collision feature is enabled or disabled when this input is stimulated." id="2" />
-                                                <Output name="output" type="1" type_size="1" nature="2" inner="0" tooltip="" id="3" />
-                                                <Parameter name="Body part" inherits_from_parent="0" content_type="3" value="Move" default_value="All" custom_choice="0" tooltip="Body part which avoids the collision." id="4">
-                                                    <Choice value="All" />
-                                                    <Choice value="Move" />
-                                                    <Choice value="Arms" />
-                                                    <Choice value="LArm" />
-                                                    <Choice value="RArm" />
-                                                </Parameter>
-                                                <Parameter name="Action" inherits_from_parent="0" content_type="3" value="Enable" default_value="Enable" custom_choice="0" tooltip="Enable or disable the collision protection." id="5">
-                                                    <Choice value="Disable" />
-                                                    <Choice value="Enable" />
-                                                </Parameter>
+                                                <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+                                                <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="3" />
                                             </Box>
-                                            <Box name="Move To" id="7" localization="8" tooltip="Make the robot move to a configured point relative to its current location." x="257" y="120">
+                                            <Link inputowner="2" indexofinput="2" outputowner="0" indexofoutput="1" />
+                                            <Link inputowner="5" indexofinput="2" outputowner="2" indexofoutput="3" />
+                                            <Link inputowner="5" indexofinput="2" outputowner="2" indexofoutput="4" />
+                                            <Link inputowner="4" indexofinput="2" outputowner="5" indexofoutput="4" />
+                                            <Link inputowner="0" indexofinput="5" outputowner="4" indexofoutput="3" />
+                                        </Diagram>
+                                    </BehaviorKeyframe>
+                                </BehaviorLayer>
+                                <BehaviorLayer name="behavior_layer3">
+                                    <BehaviorKeyframe name="exploration" index="1">
+                                        <Diagram>
+                                            <Box name="Move To" id="7" localization="8" tooltip="Make the robot move to a configured point relative to its current location." x="208" y="71">
                                                 <bitmap>media/images/box/movement/walk_forward.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -2941,7 +3420,7 @@ class MyClass(GeneratedClass):
                                                 <Parameter name="Arms movement enabled" inherits_from_parent="0" content_type="0" value="1" default_value="1" tooltip="Enables natural motion of the arms." id="9" />
                                                 <Resource name="Legs" type="Lock" timeout="0" />
                                             </Box>
-                                            <Box name="Move To (1)" id="8" localization="8" tooltip="Make the robot move to a configured point relative to its current location." x="383" y="31">
+                                            <Box name="Move To (1)" id="8" localization="8" tooltip="Make the robot move to a configured point relative to its current location." x="464" y="7">
                                                 <bitmap>media/images/box/movement/walk_forward.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -2998,7 +3477,7 @@ class MyClass(GeneratedClass):
                                                 <Parameter name="Arms movement enabled" inherits_from_parent="0" content_type="0" value="1" default_value="1" tooltip="Enables natural motion of the arms." id="9" />
                                                 <Resource name="Legs" type="Lock" timeout="0" />
                                             </Box>
-                                            <Box name="Move To (2)" id="9" localization="8" tooltip="Make the robot move to a configured point relative to its current location." x="483" y="162">
+                                            <Box name="Move To (2)" id="9" localization="8" tooltip="Make the robot move to a configured point relative to its current location." x="772" y="27">
                                                 <bitmap>media/images/box/movement/walk_forward.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -3055,7 +3534,7 @@ class MyClass(GeneratedClass):
                                                 <Parameter name="Arms movement enabled" inherits_from_parent="0" content_type="0" value="1" default_value="1" tooltip="Enables natural motion of the arms." id="9" />
                                                 <Resource name="Legs" type="Lock" timeout="0" />
                                             </Box>
-                                            <Box name="IsStanding" id="6" localization="8" tooltip="Uses ALRobotPosture to determine if the robot is standing or not." x="296" y="365">
+                                            <Box name="IsStanding" id="6" localization="8" tooltip="Uses ALRobotPosture to determine if the robot is standing or not." x="473" y="321">
                                                 <bitmap>media/images/box/sensors/inertial_unit.png</bitmap>
                                                 <script language="4">
                                                     <content>
@@ -3158,15 +3637,272 @@ class MyClass(GeneratedClass):
                                                 <Output name="onEvent" type="0" type_size="1" nature="2" inner="0" tooltip="This output is triggered each time the signal/event to which the box is connected is emitted/raised. It will carry the payload associated with the signal emission/event raise." id="6" />
                                                 <Parameter name="event" inherits_from_parent="0" content_type="3" value="stop" default_value="" custom_choice="0" tooltip='This parameter describes the signal to connect to, and the service advertising this signal.&#x0A;&#x0A;Use the pattern &quot;Service.Signal&quot; to connect to a signal, or the event key to connect to an event.' id="7" />
                                             </Box>
+                                            <Box name="Goto (empty)" id="2" localization="8" tooltip="Jump to the frame name set in parameters." x="265" y="331">
+                                                <bitmap>media/images/box/box-timeLine.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onInput_onGo(self):
+        self.getParentTimeline().goTo(self.getParameter("Frame name"))]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onGo" type="1" type_size="1" nature="1" inner="0" tooltip="Parent timeline gotoTimeline when a signal is received on this input." id="2" />
+                                                <Parameter name="Frame name" inherits_from_parent="0" content_type="3" value="empty" default_value="" custom_choice="0" tooltip="Name of the frame you want to go to." id="3" />
+                                            </Box>
+                                            <Box name="Goto (name)" id="3" localization="8" tooltip="Jump to the frame name set in parameters." x="1047" y="95">
+                                                <bitmap>media/images/box/box-timeLine.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onInput_onGo(self):
+        self.getParentTimeline().goTo(self.getParameter("Frame name"))]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onGo" type="1" type_size="1" nature="1" inner="0" tooltip="Parent timeline gotoTimeline when a signal is received on this input." id="2" />
+                                                <Parameter name="Frame name" inherits_from_parent="0" content_type="3" value="awareness" default_value="" custom_choice="0" tooltip="Name of the frame you want to go to." id="3" />
+                                            </Box>
+                                            <Box name="Timer" id="5" localization="8" tooltip="Stimulate output repeatedly with the specified interval.&#x0A;Can be stopped anytime. &#x0A;Stimulating the input again restarts the timer.&#x0A;" x="944" y="355">
+                                                <bitmap>media/images/box/wait.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onLoad(self):
+        self.timer = None
+
+    def onUnload(self):
+        self.cancelTimer()
+
+    def cancelTimer(self):
+        if self.timer:
+            self.timer.stop()
+        self.timer = None
+
+    def onTimer(self):
+        self.timerOutput()
+
+    def startTimer(self):
+        import qi
+        self.timer = qi.PeriodicTask()
+        self.timer.setCallback(self.onTimer)
+        self.timer.setUsPeriod(int(self.getParameter("Period (s)") * 1000 * 1000))
+        self.timer.start(True)
+
+    def onInput_onStart(self):
+        self.cancelTimer()
+        self.startTimer()
+
+    def onInput_onStop(self):
+        if self.timer and self.timer.isRunning():
+            self.onStopped()
+        self.onUnload()]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Start the timer using the configured period value." id="2" />
+                                                <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Stop the timer." id="3" />
+                                                <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when the box is stopped." id="4" />
+                                                <Output name="timerOutput" type="1" type_size="1" nature="2" inner="0" tooltip="Send a bang periodically." id="5" />
+                                                <Parameter name="Period (s)" inherits_from_parent="0" content_type="2" value="2" default_value="1" min="0" max="5000" tooltip="Defines the period of the timer box (in seconds).&#x0A;&#x0A;For example, if this parameter is equal to 1s, the timerOutput will be stimulated&#x0A;every second until the onStop input is stimulated." id="6" />
+                                            </Box>
+                                            <Box name="Counter" id="10" localization="-1" tooltip="Represent a counter.&#x0A;&#x0A;Each time the onStart input is stimulated, the counter value is sent on the&#x0A;currentValue output and incremented (or decremented) by Step value, from&#x0A;its Initial value to its Final value set in the parameters. Once the counter value is&#x0A;higher than its Final value, the onReinitialized output is stimulated and&#x0A;the counter is reinitialized to the Initial value.&#x0A;&#x0A;Note: You can also reinitialize the counter by stimulating the onInit&#x0A;input." x="541" y="556">
+                                                <bitmap>media/images/box/loop.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onLoad(self):
+        self.initializeParameters()
+        if( self.getParameter("Final value") - self.getParameter("Initial value") >= 0 ):
+            self.stepSign = +1
+        else:
+            self.stepSign = -1
+
+    def onUnload(self):
+        #~ puts code for box cleanup here
+        pass
+
+    def onInput_onNext(self):
+        bParamChanged = ( self.nLast != self.getParameter("Final value") or self.nFirst != self.getParameter("Initial value") )
+        bEnd = ( self.stepSign * self.nCounter > self.stepSign * self.nLast )
+        if( bEnd or bParamChanged ):
+            self.onInput_onInit()
+        if( not bEnd or bParamChanged ):
+            currentCounter = self.nCounter
+            self.nCounter = self.nCounter + self.stepSign * self.getParameter("Step value")
+            self.currentValue( currentCounter )
+
+    def initializeParameters(self):
+        self.nFirst = self.getParameter("Initial value")
+        self.nCounter = self.nFirst
+        self.nLast = self.getParameter("Final value")
+
+    def onInput_onInit(self):
+        self.initializeParameters()
+        self.onReinitialized()]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when Diagram is loaded." id="1" />
+                                                <Input name="onNext" type="1" type_size="1" nature="1" inner="0" tooltip="The counter next value is sent on the currentValue output when a signal is&#x0A;received on this input, unless it reached its Final value, then the onReinitialized&#x0A;output is stimulated." id="2" />
+                                                <Input name="onInit" type="1" type_size="1" nature="1" inner="0" tooltip="When a signal is received on this input, the counter is reinitialized to its Initial&#x0A;value." id="3" />
+                                                <Output name="currentValue" type="2" type_size="1" nature="2" inner="0" tooltip="Stimulated for each interaction with the counter current value." id="4" />
+                                                <Output name="onReinitialized" type="1" type_size="1" nature="2" inner="0" tooltip="Stimulated when the loop is over or if the counter has been reinitialized." id="5" />
+                                                <Parameter name="Initial value" inherits_from_parent="0" content_type="1" value="0" default_value="0" min="0" max="500" tooltip="The initial value of the counter (for the first iteration)." id="6" />
+                                                <Parameter name="Step value" inherits_from_parent="0" content_type="1" value="1" default_value="1" min="1" max="500" tooltip="The counter value will be incremented or decremented with this value." id="7" />
+                                                <Parameter name="Final value" inherits_from_parent="0" content_type="1" value="10" default_value="5" min="0" max="500" tooltip="It is the maximum (if increasing) or the minimum (if decreasing) value of the&#x0A;counter (thus for the last iteration).&#x0A;&#x0A;After this value, if the onStart input is called, the onReinitialized output will be&#x0A;stimulated and the counter will be reinitialized to its Initial value." id="8" />
+                                            </Box>
+                                            <Box name="Look At" id="4" localization="-1" tooltip="This box makes the robot look at a desired position." x="734" y="385">
+                                                <bitmap>media/images/box/movement/move_head.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[import time
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.tracker = ALProxy( "ALTracker" )
+
+        self.x = 0.0
+        self.y = 0.0
+        self.z = 0.0
+
+        self.maxSpeed = 0.5
+
+        self.useWholeBody = False
+        self.frame = 0 #FRAME TORSO
+
+    def onLoad(self):
+        self.BIND_PYTHON(self.getName(), "setParameter")
+
+    def onUnload(self):
+        pass
+
+    def onInput_onStart(self):
+        self.x = self.getParameter("X (m)")
+        self.y = self.getParameter("Y (m)")
+        self.z = self.getParameter("Z (m)")
+
+        self.maxSpeed = self.getParameter("Speed (%)") / 100.0
+        self.useWholeBody = self.getParameter("WholeBody")
+
+        frameStr = self.getParameter("Frame")
+        if frameStr == "Torso":
+            self.frame = 0
+        elif frameStr == "World":
+            self.frame = 1
+        elif frameStr == "Robot":
+            self.frame = 2
+
+        self.tracker.lookAt([self.x, self.y, self.z], self.frame, self.maxSpeed, self.useWholeBody)
+        self.onStopped()
+
+    def onInput_onStop(self):
+        self.onUnload()
+        pass
+
+    def setParameter(self, parameterName, newValue):
+        GeneratedClass.setParameter(self, parameterName, newValue)
+
+        if (parameterName == "X (m)"):
+            self.x = newValue
+            self.tracker.lookAt([self.x, self.y, self.z], self.frame, self.maxSpeed, self.useWholeBody)
+            self.onStopped()
+            return
+
+        if (parameterName == "Y (m)"):
+            self.y = newValue
+            self.tracker.lookAt([self.x, self.y, self.z], self.frame, self.maxSpeed, self.useWholeBody)
+            self.onStopped()
+            return
+
+        if (parameterName == "Z (m)"):
+            self.z = newValue
+            self.tracker.lookAt([self.x, self.y, self.z], self.frame, self.maxSpeed, self.useWholeBody)
+            self.onStopped()
+            return
+
+        if (parameterName == "Speed (%)"):
+            self.maxSpeed = newValue / 100.0
+            return
+
+        if (parameterName == "WholeBody"):
+            self.useWholeBody = newValue
+            return
+
+        if (parameterName == "Frame"):
+            if(newValue == "Torso"):
+                self.frame = 0
+            elif newValue == "World":
+                self.frame = 1
+            elif newValue == "Robot":
+                self.frame = 2]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+                                                <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
+                                                <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
+                                                <Parameter name="X (m)" inherits_from_parent="0" content_type="2" value="1" default_value="1" min="0.001" max="10" tooltip="X coordinate of the target to look at." id="5" />
+                                                <Parameter name="Y (m)" inherits_from_parent="0" content_type="2" value="0" default_value="0" min="-10" max="10" tooltip="Y coordinate of the target to look at." id="6" />
+                                                <Parameter name="Z (m)" inherits_from_parent="0" content_type="2" value="0" default_value="0" min="-10" max="10" tooltip="Z coordinate of the target to look at." id="7" />
+                                                <Parameter name="Speed (%)" inherits_from_parent="0" content_type="1" value="50" default_value="50" min="1" max="100" tooltip="Speed to move the head towards the desired position." id="8" />
+                                                <Parameter name="WholeBody" inherits_from_parent="0" content_type="0" value="0" default_value="0" tooltip="Use whole body constraints" id="9" />
+                                                <Parameter name="Frame" inherits_from_parent="0" content_type="3" value="Torso" default_value="Torso" custom_choice="0" tooltip="Select the frame of target." id="10">
+                                                    <Choice value="Torso" />
+                                                    <Choice value="World" />
+                                                    <Choice value="Robot" />
+                                                </Parameter>
+                                            </Box>
+                                            <Box name="Only Once" id="11" localization="8" tooltip="This box&apos;s output is stimulated only the first time the onSignal input is.&#x0A;&#x0A;Note: It is reset when the diagram containing the box is unloaded." x="393" y="460">
+                                                <bitmap>media/images/box/loop.png</bitmap>
+                                                <script language="4">
+                                                    <content>
+                                                        <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+
+    def onLoad(self):
+        self.bFirstTime = True
+
+    def onUnload(self):
+        self.bFirstTime = True
+
+    def onInput_onSignal(self):
+        if( self.bFirstTime ):
+            self.bFirstTime = False
+            self.firstTime()]]>
+</content>
+                                                </script>
+                                                <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                                                <Input name="onSignal" type="1" type_size="1" nature="1" inner="0" tooltip="The signal that must pass only once." id="2" />
+                                                <Output name="firstTime" type="1" type_size="1" nature="2" inner="0" tooltip="Signal sent first time the onSignal input is stimulated." id="3" />
+                                            </Box>
                                             <Link inputowner="9" indexofinput="2" outputowner="8" indexofoutput="4" />
-                                            <Link inputowner="9" indexofinput="2" outputowner="8" indexofoutput="5" />
-                                            <Link inputowner="7" indexofinput="2" outputowner="5" indexofoutput="3" />
                                             <Link inputowner="8" indexofinput="2" outputowner="7" indexofoutput="4" />
-                                            <Link inputowner="6" indexofinput="2" outputowner="9" indexofoutput="4" />
-                                            <Link inputowner="5" indexofinput="2" outputowner="0" indexofoutput="1" />
                                             <Link inputowner="7" indexofinput="2" outputowner="6" indexofoutput="3" />
                                             <Link inputowner="1" indexofinput="2" outputowner="0" indexofoutput="1" />
-                                            <Link inputowner="0" indexofinput="5" outputowner="1" indexofoutput="4" />
+                                            <Link inputowner="7" indexofinput="2" outputowner="0" indexofoutput="1" />
+                                            <Link inputowner="2" indexofinput="2" outputowner="1" indexofoutput="6" />
+                                            <Link inputowner="6" indexofinput="2" outputowner="9" indexofoutput="4" />
+                                            <Link inputowner="7" indexofinput="2" outputowner="5" indexofoutput="5" />
+                                            <Link inputowner="3" indexofinput="2" outputowner="10" indexofoutput="5" />
+                                            <Link inputowner="4" indexofinput="2" outputowner="8" indexofoutput="5" />
+                                            <Link inputowner="4" indexofinput="2" outputowner="9" indexofoutput="5" />
+                                            <Link inputowner="5" indexofinput="2" outputowner="4" indexofoutput="4" />
+                                            <Link inputowner="11" indexofinput="2" outputowner="7" indexofoutput="5" />
+                                            <Link inputowner="10" indexofinput="2" outputowner="11" indexofoutput="3" />
                                         </Diagram>
                                     </BehaviorKeyframe>
                                     <BehaviorKeyframe name="empty" index="30">
